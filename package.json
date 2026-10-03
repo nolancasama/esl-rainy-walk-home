@@ -1,0 +1,12 @@
+{
+  "name": "esl-rainy-walk-home",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rainy Walk Home: a short narrative ESL story game (grade 5-6) with choices, STT and gesture moments.",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:browser": "node test/browser/playthrough.mjs",
+    "serve": "python -m http.server 8020"
+  }
+}
