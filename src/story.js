@@ -331,7 +331,7 @@ export const STORY = {
     wrongHouse: {
       placeJa: 'こうえんの まえ',
       beats: [
-        { visual: ph('wrongHouse-01', 'Street by the park. Two almost identical blue houses side by side: same shape, same blue walls, same plain closed front doors. Neither house has any cat pictures, stickers, paw prints or decorations. The player, carrying Momo in both arms, hurries confidently toward the gate of the first house without looking closely. Haru walks one step behind on the sidewalk, holding the blue umbrella that belongs to the player over both of them, since the player has both arms full and pointing at the first house.', '🌳  💙🏠  💙🏠   🧒🐱👦', 'rain'),
+        { visual: ph('wrongHouse-01', 'Street by the park. Two almost identical blue houses side by side: same shape, same blue walls, same plain closed front doors. Neither house has any cat pictures, stickers, paw prints or decorations. The player, carrying Momo in both arms, hurries confidently toward the gate of the first house without looking closely. Haru walks one step behind on the sidewalk, pointing at the first house with one hand and, with the other, holding the blue umbrella that belongs to the player over both of them, since the player has both arms full.', '🌳  💙🏠  💙🏠   🧒🐱👦', 'rain'),
           say: { who: 'haru', en: 'Look! A blue house!', ja: 'みて！ 青い家！' } },
         { say: { who: 'narrator', en: 'Ding-dong!', ja: 'ピンポーン！' }, sfx: 'doorbell',
           interaction: { type: 'speak', target: 'Hello!', accepted: ['hello', 'hallo', 'hullo', 'hello there', 'hi', 'harrow'], prompt: { en: 'Say: "Hello!"', ja: '「ハロー！」と いおう' } } },
