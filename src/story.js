@@ -143,7 +143,7 @@ export const STORY = {
                 noticeRepair,
                 { say: { who: 'narrator', en: 'Catch the paper!', ja: 'プリントを キャッチ！' },
                   interaction: { type: 'gesture', gesture: 'catch', prompt: { en: 'Reach up and catch!', ja: '手を上にのばして キャッチ！' } } },
-                { visual: ph('papers-02', 'Side view, the player facing right, leaping up from the wet sidewalk with the randoseru on their back. The left hand holds the blue umbrella out behind for balance; the right arm stretches up and the right hand has just caught a flying white worksheet, the sheet pinched between fingers and thumb at the top of the jump. Natural, readable pose: both arms attached correctly, nothing mirrored. On the left, Ken, empty-handed, stares up in amazement; his open clear folder lies at his feet with a few loose sheets on the ground.', '🙌📄 🧒✨ 🧒🏻😮', 'storm'),
+                { visual: ph('papers-02', 'Side view, the player facing right, leaping up from the wet sidewalk with the randoseru on their back. The left hand holds the blue umbrella out behind for balance, open and right-side out (it does not flip); the right arm stretches up and the right hand has just caught a flying white worksheet, the sheet pinched between fingers and thumb at the top of the jump. Natural, readable pose: both arms attached correctly, nothing mirrored. On the left, Ken, empty-handed, stares up in amazement; his open clear folder lies at his feet with a few loose sheets on the ground.', '🙌📄 🧒✨ 🧒🏻😮', 'storm'),
                   effects: { set: { caughtPapers: true }, add: { competenceMoments: 1 } },
                   say: { who: 'ken', en: 'Wow! Thank you!', ja: 'すごい！ ありがとう！' } },
                 { say: { who: 'haru', en: 'Nice catch!', ja: 'ナイスキャッチ！' } },

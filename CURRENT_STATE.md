@@ -15,10 +15,8 @@ unchanged. `window.storyRunner` exposes read-only `state` and `view` for the
 browser harness.
 
 All 79 placeholder ids, plus the message-photo asset `photo-momo`
-(`STORY.photos`), resolve through `SCENE_ART`. Aliases in `art/aliases.json`
-temporarily reuse art for `home-04 → home-06`, `bag-04 → bag-02`,
-`bag-05 → bag-03` and `photo-momo → reunion-06`. Missing art still falls back to
-the stage emoji and visual brief.
+(`STORY.photos`), resolve through `SCENE_ART`. The only remaining alias is
+`bag-04 → bag-02`. Missing art still falls back to the stage emoji and visual brief.
 
 ## How to run
 
@@ -31,13 +29,14 @@ the stage emoji and visual brief.
 
 ## Art fixes
 
-`art/ART_FIXES.md` is the prioritized regeneration queue from the 2026-10-03
-continuity audit: 19 images plus the new `photo-momo`. The rain now stops at the
-reunion and returns at `bag-01` (both narrated), so the golden reunion art stays.
-The main problems are a misleading wrong house, a mirrored catch pose,
-Momo or stray cats at home, outdoor gear indoors, and duplicated or extra
-characters. The corrected prompts are in `art/ART_PROMPTS.md`; the continuity
-rules are in `DESIGN_DECISIONS.md`.
+`art/ART_FIXES.md` is the regeneration queue from the 2026-10-03 continuity
+audit. The second art batch (home scenes in the dry home outfit, the dedicated
+`photo-momo`, the umbrella fix, and more) is wired in. Four images remain:
+`wrongHouse-01`, `wrongHouse-02`, `bag-01` and `bag-04`, plus a few optional
+redos. The rain stops at the reunion and returns at `bag-01` (both narrated).
+The corrected prompts are in `art/ART_PROMPTS.md`; the continuity rules are in
+`DESIGN_DECISIONS.md`. The home-outfit reference sheet is
+`art/reference/player-home-outfit.webp`.
 
 Art briefs live in `src/story.js` descriptions. After editing them, run
 `node art/build-prompts.mjs`. Do not change visual ids when regenerating:
@@ -60,7 +59,7 @@ sound-name reference is in `audio/SOUNDS.md`.
 
 - STT and motion thresholds have not been evaluated with real children, real
   webcams and managed Chromebook microphone policies.
-- The images queued in `art/ART_FIXES.md` still need regeneration. Until then,
-  the message photo is a stand-in
-  (`reunion-06`, in which Kimura is visible taking the photo).
+- Four images in `art/ART_FIXES.md` still need regeneration. Until then, the
+  wrong house still shows cat stickers, and `bag-01` still shows Momo after
+  she has gone home.
 - Optional MP3 sound slots remain unfilled.

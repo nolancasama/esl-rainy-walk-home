@@ -56,7 +56,7 @@ export const SCENE_ART = {
   "bag-02": "art/scenes/bag-02.webp",
   "bag-03": "art/scenes/bag-03.webp",
   "bag-04": "art/scenes/bag-02.webp",
-  "bag-05": "art/scenes/bag-03.webp",
+  "bag-05": "art/scenes/bag-05.webp",
   "bag-06": "art/scenes/bag-06.webp",
   "bag-07": "art/scenes/bag-07.webp",
   "bag-08": "art/scenes/bag-08.webp",
@@ -75,12 +75,12 @@ export const SCENE_ART = {
   "home-01": "art/scenes/home-01.webp",
   "home-02": "art/scenes/home-02.webp",
   "home-03": "art/scenes/home-03.webp",
-  "home-04": "art/scenes/home-06.webp",
+  "home-04": "art/scenes/home-04.webp",
   "home-05": "art/scenes/home-05.webp",
   "home-06": "art/scenes/home-06.webp",
   "home-07": "art/scenes/home-07.webp",
   "home-08": "art/scenes/home-08.webp",
-  "photo-momo": "art/scenes/reunion-06.webp"
+  "photo-momo": "art/scenes/photo-momo.webp"
 };
 
 // Cast id -> portrait image.
