@@ -30,8 +30,9 @@ All 79 placeholder ids, plus the message-photo asset `photo-momo`
 
 `art/ART_FIXES.md` is the regeneration queue from the 2026-10-03 continuity
 audit. The second art batch (home scenes in the dry home outfit, the dedicated
-`photo-momo`, the umbrella fix, and more) is wired in. Three images remain:
-`wrongHouse-01`, `wrongHouse-02` and `bag-01`, plus a few optional redos. The rain stops at the reunion and returns at `bag-01` (both narrated).
+`photo-momo`, the umbrella fix, and more) is wired in. Seven images remain:
+`wrongHouse-01`, `wrongHouse-02`, `bag-01`, and the cat-search set `listen-01`,
+`come-01`, `come-02` and `come-03`, plus a few optional redos. The rain stops at the reunion and returns at `bag-01` (both narrated).
 The corrected prompts are in `art/ART_PROMPTS.md`; the continuity rules are in
 `DESIGN_DECISIONS.md`. The home-outfit reference sheet is
 `art/reference/player-home-outfit.webp`.
@@ -57,7 +58,7 @@ sound-name reference is in `audio/SOUNDS.md`.
 
 - STT and motion thresholds have not been evaluated with real children, real
   webcams and managed Chromebook microphone policies.
-- Three images in `art/ART_FIXES.md` still need regeneration. Until then, the
+- Seven images in `art/ART_FIXES.md` still need regeneration. Until then, the
   wrong house still shows cat stickers, and `bag-01` still shows Momo after
   she has gone home.
 - Optional MP3 sound slots remain unfilled.

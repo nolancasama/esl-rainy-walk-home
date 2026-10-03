@@ -145,6 +145,11 @@ A useful rule:
 - **The player has a home outfit.** After the towel: cream long-sleeve
   sweatshirt, navy lounge pants, socks; no jacket, randoseru or umbrella.
   `build-prompts.mjs` picks outfit variants per id through `OVERRIDES`.
+- **The cat is found in one place: the roofed bicycle shelter by the red
+  vending machine.** `listen-01` shows no animal yet; `come-01` to `come-03`
+  keep Momo at the bicycles, never at a house door. Rejected: drawing Kimura's
+  photo as an inset in `home-07`, because the HTML message card already shows
+  `photo-momo` in that corner and a baked-in copy would duplicate it.
 - **Prompts forbid extra animals, extra children and split panels by default.**
   In a lost-cat story a stray background cat reads as plot. Phone screens face
   away or stay blank; the HTML message card carries the content.

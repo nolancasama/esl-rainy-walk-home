@@ -209,7 +209,7 @@ export const STORY = {
     listen: {
       placeJa: 'じはんきの まえ',
       beats: [
-        { visual: ph('listen-01', 'Quiet street. A vending machine, a bicycle shelter, and a bush. Rain sound. Player and Haru walking. Something small is hidden.', '🥤  🚲🚲  🌳   🧒👦', 'rain'),
+        { visual: ph('listen-01', 'Quiet street. Beside the sidewalk: a red drink vending machine, a small roofed bicycle shelter with a few ordinary city bicycles parked in a rack, and a leafy bush. Player and Haru walk past in the rain. Nothing hidden is visible yet: no animals anywhere, not in the bush and not under the bicycles.', '🥤  🚲🚲  🌳   🧒👦', 'rain'),
           say: { who: 'momo', en: 'Meow...', ja: '（ニャー…）' }, sfx: 'meow' },
         { say: { who: 'haru', en: 'What was that?', ja: 'いまの なに？' },
           interaction: { type: 'choice', choices: [
@@ -242,18 +242,18 @@ export const STORY = {
     come: {
       placeJa: 'じてんしゃおきば',
       beats: [
-        { visual: ph('come-01', 'Under the bicycles: a small wet white cat with gray spots, shivering, eyes wide. It wears a red collar with a tag.', '🚲🚲 🐱💧', 'rain'),
+        { visual: ph('come-01', 'Low, close view inside the small roofed bicycle shelter beside the red vending machine. Several ordinary Japanese city bicycles stand neatly in a rack, each with two round wheels, a simple straight frame, a front basket, a seat, handlebars and pedals; no warped or merged parts. Under those bicycles, low on the dry pavement between the wheels, a small wet white cat with gray spots hides, shivering, eyes wide; it wears a red collar with a small round tag. The cat is clearly under the bicycles: not by a house, a doorway, a porch, or in bushes or plants. Open pavement around it so the hiding place is easy to read. Houses only far in the background.', '🚲🚲 🐱💧', 'rain'),
           say: { who: 'narrator', en: 'A cat! It is scared.', ja: 'ねこだ！ こわがっている。' } },
         { say: { who: 'haru', en: 'Call the cat!', ja: 'ねこを よんでみて！' },
           interaction: { type: 'speak', target: 'Come!', accepted: ['come', 'calm', 'cum', 'kam', 'come here', 'come on'], prompt: { en: 'Say: "Come!"', ja: '「カム！」と いってみよう' } } },
-        { visual: ph('come-02', 'The cat peeks out and takes one small step toward the player. Then it stops.', '🚲 🐱👀 ... 🧒', 'rain'),
+        { visual: ph('come-02', 'At the roofed bicycle shelter beside the red vending machine. The cat peeks out from under the parked bicycles and takes one small, careful step toward the player, then stops, one paw still raised. The player crouches on the sidewalk a short distance away, holding the blue umbrella; Haru watches quietly from just behind the player. The bicycles are ordinary and correctly drawn: two round wheels each, simple frames, baskets. Not by a house, a doorway or a porch.', '🚲 🐱👀 ... 🧒', 'rain'),
           say: { who: 'narrator', en: 'The cat looks at you.', ja: 'ねこが きみを みている。' },
           interaction: { type: 'choice', choices: [
             { verb: 'feed', icon: '🐟',
               goto: (s) => (s.hasSnack ? 'tag' : 'softly'),
               beats: [
                 { when: (s) => s.hasSnack, effects: { set: { fedCat: true }, add: { competenceMoments: 1 } },
-                  visual: ph('come-03', 'Player opens Mrs. Sato\'s fish snacks. The cat comes out, eats from the player\'s hand, and purrs.', '🧒✋🐟 🐱💕', 'rain'),
+                  visual: ph('come-03', 'In front of the roofed bicycle shelter beside the red vending machine, the player crouches holding open a small pack of dried fish snacks. The cat has come out from under the parked bicycles and eats from the player\'s hand, eyes closed, purring. Haru crouches beside the player, smiling. Not by a house, a doorway or a porch.', '🧒✋🐟 🐱💕', 'rain'),
                   sfx: 'purr',
                   say: { who: 'narrator', en: "Mrs. Sato's snack! The cat eats.", ja: 'さとうさんの おやつ！ ねこが たべる。' } },
                 { when: (s) => s.hasSnack && warm(s), say: { who: 'haru', en: 'It likes you!', ja: 'なついてる！' } },

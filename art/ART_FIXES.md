@@ -34,6 +34,15 @@ Continuity rules the prompts now enforce:
 3. `bag-01` — Momo is still in the player's arms after she has gone home; must
    also show the light rain starting again. (A golden-hour walking image was
    rejected for this slot: no spilled books and no returning rain.)
+4. `listen-01` — a calico cat peeks out of the bush before the search starts.
+5. `come-01` — warped, oversized bicycle wheels; make the under-the-bicycles
+   hiding place clear.
+6. `come-02` — the cat stands on a house doorstep, not at the bicycle shelter.
+7. `come-03` — the cat eats by a house gate instead of at the bicycle shelter;
+   Haru is missing.
+
+The cat sequence (`listen-01` to `come-03`) should share one place: the roofed
+bicycle shelter beside the red vending machine, as drawn in `listen-01` and `come-05`.
 
 For the two wrong-house scenes, match the houses in the new `wrongHouse-04` and
 `wrongHouse-06` (pale blue two-storey houses, wooden doors, stone gateposts) and
@@ -41,9 +50,9 @@ use them as reference images if the generator allows.
 
 ## Optional
 
-4. `tag-04` — cherry blossoms in the June hydrangea season; a stray calico cat.
-5. `reunion-05` — a small stray calico cat on a wall.
-6. Background calico cats in `bag-06` read as a clue during the cat search.
+8. `tag-04` — cherry blossoms in the June hydrangea season; a stray calico cat.
+9. `reunion-05` — a small stray calico cat on a wall.
+10. Background calico cats in `bag-06` read as a clue during the cat search.
 
 Minor flaws accepted in the new art: in `home-02` the set-down randoseru is
 brown, not navy; in `bag-03` a spare navy bag lies on the ground.
