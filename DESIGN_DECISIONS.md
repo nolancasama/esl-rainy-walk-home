@@ -119,3 +119,26 @@ A useful rule:
   lightweight one-shots without asset downloads. A small explicit allow-list
   gates optional MP3 slots, so missing files are silent rather than generating
   requests or blocking progression.
+
+## 2026-10-03 — Art continuity rules
+
+- **It keeps raining through the reunion.** Reunion art is staged under Mr.
+  Kimura's porch eave with steady rain behind, and the reunion visuals use the
+  `rain` tone, so the ambience stays rainy too. The rain only lightens on the
+  walk home and at home, which matches the text ("Rain is lighter", "the rain is
+  soft now"). The `warm` tone now means indoor lamplight only. Rejected: golden
+  after-rain light at the reunion, because the story never says the rain stopped.
+- **The wrong house is a too-quick choice, not a misleading clue.** Both blue
+  houses look the same; only Kimura's has a cat door. Haru's line changed from
+  "Look! Cat stickers!" to "Look! A blue house!". Rejected: cat stickers, which
+  made the first house look like Momo's real home.
+- **Kimura's message photo is a dedicated asset (`photo-momo`).** It shows the
+  player, Haru and Momo; Mr. Kimura took it, so he is not in it. Briefs for
+  message-only art live in `STORY.photos` and go through the same prompt and
+  manifest pipeline. Rejected: reusing `reunion-03` (Kimura hugging Momo).
+- **The player has a home outfit.** After the towel: cream long-sleeve
+  sweatshirt, navy lounge pants, socks; no jacket, randoseru or umbrella.
+  `build-prompts.mjs` picks outfit variants per id through `OVERRIDES`.
+- **Prompts forbid extra animals, extra children and split panels by default.**
+  In a lost-cat story a stray background cat reads as plot. Phone screens face
+  away or stay blank; the HTML message card carries the content.

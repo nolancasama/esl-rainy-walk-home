@@ -17,6 +17,7 @@ function walk(beats) {
   }
 }
 for (const scene of Object.values(STORY.scenes)) walk(scene.beats);
+for (const photo of Object.values(STORY.photos || {})) ids.add(photo.id);
 
 const scenes = {};
 const missing = [];

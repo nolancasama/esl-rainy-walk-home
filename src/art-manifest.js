@@ -75,11 +75,12 @@ export const SCENE_ART = {
   "home-01": "art/scenes/home-01.webp",
   "home-02": "art/scenes/home-02.webp",
   "home-03": "art/scenes/home-03.webp",
-  "home-04": "art/scenes/home-02.webp",
+  "home-04": "art/scenes/home-06.webp",
   "home-05": "art/scenes/home-05.webp",
   "home-06": "art/scenes/home-06.webp",
   "home-07": "art/scenes/home-07.webp",
-  "home-08": "art/scenes/home-08.webp"
+  "home-08": "art/scenes/home-08.webp",
+  "photo-momo": "art/scenes/reunion-06.webp"
 };
 
 // Cast id -> portrait image.

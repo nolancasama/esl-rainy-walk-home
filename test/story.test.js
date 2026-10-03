@@ -34,6 +34,20 @@ test('every placeholder has one stable id and resolves to existing art', () => {
   }
 });
 
+test('every message photo is a dedicated asset that resolves to existing art', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const photos = [];
+  walk(Object.values(STORY.scenes).flatMap((scene) => scene.beats), (beat) => {
+    if (beat.say?.photo) photos.push(beat.say.photo);
+  });
+  assert.ok(photos.length > 0);
+  for (const id of photos) {
+    assert.equal(STORY.photos[id]?.id, id, `photo without a brief in STORY.photos: ${id}`);
+    assert.ok(SCENE_ART[id], `missing manifest entry: ${id}`);
+    assert.ok(fs.existsSync(path.join(root, SCENE_ART[id])), `missing resolved art: ${id}`);
+  }
+});
+
 function drive(runner, decisions) {
   let steps = 0;
   while (!runner.view.recap && steps++ < 400) {

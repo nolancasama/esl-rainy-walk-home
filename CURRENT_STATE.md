@@ -14,9 +14,11 @@ warm, repair and quiet endings and all existing choices/interactions remain
 unchanged. `window.storyRunner` exposes read-only `state` and `view` for the
 browser harness.
 
-All 79 placeholder ids resolve through `SCENE_ART` to existing scene files.
-Aliases in `art/aliases.json` intentionally reuse art for `home-04`, `bag-04`
-and `bag-05`. Missing art still falls back to the stage emoji and visual brief.
+All 79 placeholder ids, plus the message-photo asset `photo-momo`
+(`STORY.photos`), resolve through `SCENE_ART`. Aliases in `art/aliases.json`
+temporarily reuse art for `home-04 → home-06`, `bag-04 → bag-02`,
+`bag-05 → bag-03` and `photo-momo → reunion-06`. Missing art still falls back to
+the stage emoji and visual brief.
 
 ## How to run
 
@@ -29,19 +31,17 @@ and `bag-05`. Missing art still falls back to the stage emoji and visual brief.
 
 ## Art fixes
 
-`art/ART_FIXES.md` is the regeneration queue:
+`art/ART_FIXES.md` is the prioritized regeneration queue from the 2026-10-03
+continuity audit: 23 images plus the new `photo-momo`. The main problems are
+sunset or after-rain skies at the reunion and at home, a misleading wrong house,
+Momo or stray cats at home, outdoor gear indoors, and duplicated or extra
+characters. The corrected prompts are in `art/ART_PROMPTS.md`; the continuity
+rules are in `DESIGN_DECISIONS.md`.
 
-- `bag-01` — Momo appears after she has gone home (highest priority)
-- `home-04` — player is shown outdoors
-- `bag-04` — Haru is already kneeling instead of pausing
-- `bag-05` — an extra girl replaces the player
-- `papers-08` — stray child in a yellow raincoat
-- `umbrella-01` and `home-07` — compositions should not depend on readable
-  phone screens
-
-Do not change visual ids when regenerating. Replace the matching
-`art/scenes/<id>.webp` and rebuild the manifest if aliases or available files
-change.
+Art briefs live in `src/story.js` descriptions. After editing them, run
+`node art/build-prompts.mjs`. Do not change visual ids when regenerating:
+replace `art/scenes/<id>.webp`, drop any alias the new file makes unnecessary,
+and run `node art/build-manifest.mjs`.
 
 ## Optional sound files
 
@@ -59,5 +59,7 @@ sound-name reference is in `audio/SOUNDS.md`.
 
 - STT and motion thresholds have not been evaluated with real children, real
   webcams and managed Chromebook microphone policies.
-- The seven images in `art/ART_FIXES.md` still need regeneration.
+- The images queued in `art/ART_FIXES.md` still need regeneration. Until then,
+  the reunion and home art shows sunsets, and the message photo is a stand-in
+  (`reunion-06`, in which Kimura is visible taking the photo).
 - Optional MP3 sound slots remain unfilled.
