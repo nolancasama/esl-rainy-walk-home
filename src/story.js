@@ -12,6 +12,26 @@ const cool = (s) => s.haruBond < 2;
 
 const ph = (description, stage, tone = 'rain') => ({ type: 'placeholder', description, stage, tone });
 
+// Ending tone, chosen from the three "help someone or keep going" dilemmas
+// (umbrella, papers, Mrs. Sato). Never shown to the player; it only changes
+// how Haru and the walk home feel. Every ending returns Momo and gets home.
+// - warm:   close to Haru and helped at least twice
+// - repair: kept going earlier, but the most recent dilemma was a help
+// - quiet:  everything else (mostly hurried home)
+export const ending = (s) => {
+  if (s.haruBond >= 2 && s.helpCount >= 2) return 'warm';
+  if (s.repaired) return 'repair';
+  return 'quiet';
+};
+const endingIs = (name) => (s) => ending(s) === name;
+
+// Effects for the dilemma choices. A help after an earlier skip marks a repair;
+// a later skip undoes it, so "repair" means the change stuck.
+const helped = { add: { helpCount: 1 } };
+const skipped = { add: { skipCount: 1 }, set: { repaired: false } };
+const noticeRepair = { when: (s) => s.skipCount > 0, effects: { set: { repaired: true } } };
+const merge = (a, b) => ({ set: { ...a.set, ...b.set }, add: { ...a.add, ...b.add } });
+
 export const STORY = {
   id: 'rainy-walk-home',
   title: 'Rainy Walk Home',
@@ -36,6 +56,9 @@ export const STORY = {
     lateLevel: 0,
     embarrassmentEvents: 0,
     competenceMoments: 0,
+    helpCount: 0,
+    skipCount: 0,
+    repaired: false,
   },
 
   // Who can speak. `icon` is a placeholder portrait.
@@ -77,13 +100,13 @@ export const STORY = {
         { say: { who: 'mom', en: 'Come home soon.', ja: 'ママ：はやく帰ってきてね。' } },
         { say: { who: 'narrator', en: 'What do you do?', ja: 'どうする？' },
           interaction: { type: 'choice', choices: [
-            { verb: 'help', icon: '☂️', effects: { set: { helpedHaru: true }, add: { haruBond: 2, lateLevel: 1 } },
+            { verb: 'help', icon: '☂️', effects: merge(helped, { set: { helpedHaru: true }, add: { haruBond: 2, lateLevel: 1 } }),
               beats: [
                 { visual: ph('Player and Haru squeeze under one small umbrella. Both have one wet shoulder. They walk slowly, smiling.', '☂️ 🧒👦 💧', 'rain'),
                   say: { who: 'haru', en: 'Thanks! Your shoulder is wet!', ja: 'ありがとう！ きみのかた、ぬれてるよ！' } },
                 { say: { who: 'narrator', en: 'One umbrella. Two friends. Slow.', ja: 'ひとつのかさに ふたり。ゆっくり。' } },
               ] },
-            { verb: 'run', icon: '🏃', effects: { set: { ranFromHaru: true }, add: { haruBond: -1, embarrassmentEvents: 1 } },
+            { verb: 'run', icon: '🏃', effects: merge(skipped, { set: { ranFromHaru: true }, add: { haruBond: -1, embarrassmentEvents: 1 } }),
               beats: [
                 { say: { who: 'narrator', en: 'Run! Run fast!', ja: 'はしれ！' },
                   interaction: { type: 'gesture', gesture: 'run', prompt: { en: 'Run in place!', ja: 'その場で 足ぶみして はしろう！' } } },
@@ -105,7 +128,8 @@ export const STORY = {
           say: { who: 'narrator', en: 'Whoosh! Strong wind!', ja: 'ビューッ！ つよい風！' } },
         { say: { who: 'ken', en: 'My papers!', ja: 'ぼくのプリント！' },
           interaction: { type: 'choice', choices: [
-            { verb: 'catch', icon: '🙌', beats: [
+            { verb: 'catch', icon: '🙌', effects: helped, beats: [
+                noticeRepair,
                 { say: { who: 'narrator', en: 'Catch the paper!', ja: 'プリントを キャッチ！' },
                   interaction: { type: 'gesture', gesture: 'catch', prompt: { en: 'Reach up and catch!', ja: '手を上にのばして キャッチ！' } } },
                 { visual: ph('Player jumps and catches a flying worksheet in mid-air. Ken stares in amazement.', '🙌📄 🧒✨ 🧒🏻😮', 'storm'),
@@ -113,7 +137,8 @@ export const STORY = {
                   say: { who: 'ken', en: 'Wow! Thank you!', ja: 'すごい！ ありがとう！' } },
                 { say: { who: 'haru', en: 'Nice catch!', ja: 'ナイスキャッチ！' } },
               ] },
-            { verb: 'help', icon: '🤝', effects: { set: { helpedStudent: true }, add: { haruBond: 1, lateLevel: 1 } }, beats: [
+            { verb: 'help', icon: '🤝', effects: merge(helped, { set: { helpedStudent: true }, add: { haruBond: 1, lateLevel: 1 } }), beats: [
+                noticeRepair,
                 { when: warm, visual: ph('Player and Haru kneel on the wet sidewalk, picking up papers together with Ken. Haru jumps in right away.', '📄 🧒👦🧒🏻 📄', 'rain'),
                   say: { who: 'haru', en: 'I got this one!', ja: 'これ、とったよ！' } },
                 { when: cool, visual: ph('Player kneels and picks up papers with Ken. Haru watches, then slowly helps too.', '📄 🧒🧒🏻 📄 ... 👦', 'rain'),
@@ -121,7 +146,7 @@ export const STORY = {
                 { visual: ph('Ken holds his folder tight, bows deeply.', '🧒🏻🙇 📁', 'rain'),
                   say: { who: 'ken', en: 'Thank you!', ja: 'ありがとう！' } },
               ] },
-            { verb: 'go', icon: '🚶', effects: { set: { ignoredStudent: true }, add: { embarrassmentEvents: 1 } }, beats: [
+            { verb: 'go', icon: '🚶', effects: merge(skipped, { set: { ignoredStudent: true }, add: { embarrassmentEvents: 1 } }), beats: [
                 { visual: ph('Player keeps walking. SPLAT — a wet worksheet sticks flat to the player\'s face.', '💨📄😵 🧒', 'storm'),
                   say: { who: 'narrator', en: 'Splat! A paper on your face!', ja: 'ベチャ！ かおに プリント！' } },
                 { say: { who: 'haru', en: 'Ha ha! Look at you!', ja: 'あはは！ その顔！' } },
@@ -143,19 +168,21 @@ export const STORY = {
         { when: (s) => s.lateLevel >= 1, say: { who: 'mom', en: 'Where are you?', ja: 'ママ：いま どこ？' } },
         { say: { who: 'narrator', en: 'Mrs. Sato has heavy bags.', ja: 'さとうさんの にもつは おもい。' },
           interaction: { type: 'choice', choices: [
-            { verb: 'catch', icon: '🍊', effects: { set: { caughtOrange: true, helpedMrsSato: true, hasSnack: true }, add: { competenceMoments: 1 } }, beats: [
+            { verb: 'catch', icon: '🍊', effects: merge(helped, { set: { caughtOrange: true, helpedMrsSato: true, hasSnack: true }, add: { competenceMoments: 1 } }), beats: [
+                noticeRepair,
                 { visual: ph('Player dives and stops the orange with one hand, just before the drain.', '🧒✋🍊 🕳️', 'rain'),
                   say: { who: 'sato', en: 'Good catch! Thank you.', ja: 'ナイスキャッチ！ ありがとう。' } },
                 { visual: ph('Mrs. Sato takes a small pack of dried fish snacks (niboshi) from her bag and gives it to the player.', '👵🎁🐟 → 🧒', 'rain'),
                   say: { who: 'sato', en: 'Here. A little snack.', ja: 'はい、おやつ どうぞ。' } },
               ] },
-            { verb: 'help', icon: '🛍️', effects: { set: { helpedMrsSato: true, hasSnack: true }, add: { haruBond: 1, lateLevel: 1 } }, beats: [
+            { verb: 'help', icon: '🛍️', effects: merge(helped, { set: { helpedMrsSato: true, hasSnack: true }, add: { haruBond: 1, lateLevel: 1 } }), beats: [
+                noticeRepair,
                 { visual: ph('Player carries one grocery bag. Haru holds the umbrella over Mrs. Sato. They walk her to her gate.', '🧒🛍️ 👦☂️👵 🏠', 'rain'),
                   say: { who: 'sato', en: "Thank you. You've grown!", ja: 'ありがとう。大きくなったねえ！' } },
                 { visual: ph('At her gate Mrs. Sato gives the player a small pack of dried fish snacks (niboshi).', '👵🎁🐟 → 🧒', 'rain'),
                   say: { who: 'sato', en: 'Here. A little snack.', ja: 'はい、おやつ どうぞ。' } },
               ] },
-            { verb: 'go', icon: '🚶', beats: [
+            { verb: 'go', icon: '🚶', effects: skipped, beats: [
                 { visual: ph('Player walks on. Haru stops and looks back at Mrs. Sato, who bends slowly to pick up the orange.', '🧒🚶 ... 👦👀 ... 👵🍊', 'rain'),
                   say: { who: 'narrator', en: 'Haru looks back.', ja: 'ハルが ふりかえる。' } },
                 { say: { who: 'haru', en: '...Okay. Let\'s go.', ja: '…うん。いこう。' } },
@@ -202,9 +229,9 @@ export const STORY = {
     come: {
       placeJa: 'じてんしゃおきば',
       beats: [
-        { visual: ph('Under the bicycles: a small wet white cat with gray spots, shivering, eyes wide. It wears a red collar with a tag.', '🚲🚲 🐱💧 (red collar)', 'rain'),
+        { visual: ph('Under the bicycles: a small wet white cat with gray spots, shivering, eyes wide. It wears a red collar with a tag.', '🚲🚲 🐱💧', 'rain'),
           say: { who: 'narrator', en: 'A cat! It is scared.', ja: 'ねこだ！ こわがっている。' } },
-        { say: { who: 'haru', en: 'Say: "Come!"', ja: '「Come!」って いってみて！' },
+        { say: { who: 'haru', en: 'Call the cat!', ja: 'ねこを よんでみて！' },
           interaction: { type: 'speak', target: 'Come!', accepted: ['come', 'calm', 'cum', 'kam', 'come here', 'come on'], prompt: { en: 'Say: "Come!"', ja: '「カム！」と いってみよう' } } },
         { visual: ph('The cat peeks out and takes one small step toward the player. Then it stops.', '🚲 🐱👀 ... 🧒', 'rain'),
           say: { who: 'narrator', en: 'The cat looks at you.', ja: 'ねこが きみを みている。' },
@@ -303,7 +330,7 @@ export const STORY = {
         { say: { who: 'narrator', en: 'Which house is it?', ja: 'どっちの家？' },
           interaction: { type: 'choice', choices: [
             { verb: 'read', icon: '📖', effects: { add: { competenceMoments: 1 } }, beats: [
-                { visual: ph('Close-up of two nameplates. This house: TANAKA. Next blue house: KIMURA, with a small cat door.', '🪧 TANAKA   |   🪧 KIMURA 🐾', 'rain'),
+                { visual: ph('Close-up of two nameplates. This house: TANAKA. Next blue house: KIMURA, with a small cat door.', '🏷️ TANAKA   |   🏷️ KIMURA 🐾', 'rain'),
                   say: { who: 'you', en: 'Tanaka... and Kimura!', ja: 'たなか…と、きむら！' } },
                 { when: (s) => s.knowsKimura, say: { who: 'haru', en: 'Mr. Kimura! Mrs. Sato said!', ja: 'きむらさん！ さとうさんが いってた！' } },
                 { when: (s) => !s.knowsKimura, say: { who: 'haru', en: 'Look! A cat door!', ja: 'みて！ ねこの ドア！' } },
@@ -323,7 +350,7 @@ export const STORY = {
     reunion: {
       placeJa: 'きむらさんの いえ',
       beats: [
-        { visual: ph('The second blue house. Nameplate KIMURA. Player stands at the door with the cat, Haru beside. Player takes a breath.', '💙🏠 🪧KIMURA  🧒🐱 👦', 'rain'),
+        { visual: ph('The second blue house. Nameplate KIMURA. Player stands at the door with the cat, Haru beside. Player takes a breath.', '💙🏠 🏷️KIMURA  🧒🐱 👦', 'rain'),
           say: { who: 'narrator', en: 'Try again!', ja: 'もういちど！' },
           interaction: { type: 'speak', target: 'Hello!', accepted: ['hello', 'hallo', 'hullo', 'hello there', 'hi', 'harrow'], prompt: { en: 'Say: "Hello!"', ja: '「ハロー！」と いおう' } } },
         { visual: ph('The door opens. An elderly man with a cane and a worried face. The cat leaps from the player\'s arms into his.', '🚪 👴😟 ← 🐱💨  🧒 👦', 'rain'),
@@ -342,17 +369,30 @@ export const STORY = {
     },
 
     // ── 10. Reciprocity: now the player needs help ────────────────────
+    // The three endings split here (see `ending`): how Haru helps, and
+    // whether he walks the player home.
     bag: {
       placeJa: 'かえりみち',
       beats: [
         { visual: ph('Walking home. Rain is lighter. The player\'s school bag (randoseru) lid is open — they forgot to close it while holding the cat. Books slide out into a puddle.', '🌦️ 🎒↯ 📚📚💧 🧒😱 👦', 'rain'),
           effects: { add: { embarrassmentEvents: 1 } },
           say: { who: 'narrator', en: 'Oh no! Your bag is open!', ja: 'あっ！ ランドセルが あいてる！' } },
-        { when: warm, visual: ph('Before the player can move, Haru is already kneeling in the puddle, picking up books.', '👦🧎📚 🧒', 'rain'),
+        { when: endingIs('warm'), visual: ph('Before the player can move, Haru is already kneeling in the puddle, picking up books.', '👦🧎📚 🧒', 'rain'),
           say: { who: 'haru', en: 'I got it!', ja: 'まかせて！' } },
-        { when: cool, visual: ph('Haru stands still for a moment, watching. Then he sighs, kneels, and picks up a book.', '👦 ... 👦🧎📚', 'rain'),
+        { when: endingIs('quiet'), visual: ph('Haru stands still for a moment, watching. Then he sighs, kneels, and picks up a book.', '👦 ... 👦🧎📚', 'rain'),
           say: { who: 'haru', en: '...Here.', ja: '…はい。' } },
-        { say: { who: 'narrator', en: 'Haru helps you.', ja: 'ハルが てつだってくれた。' },
+        // Repair: a pause, then Haru chooses to help, and the player thanks him out loud.
+        { when: endingIs('repair'), visual: ph('Haru stops. He looks at the wet books, then at the player. A short pause.', '👦 ... 📚💧 🧒', 'rain'),
+          say: { who: 'narrator', en: 'Haru stops.', ja: 'ハルが とまる。' } },
+        { when: endingIs('repair'), visual: ph('Haru hesitates, then kneels and helps pick up wet books.', '👦🧎📚 🧒', 'rain'),
+          say: { who: 'haru', en: "I'll help.", ja: 'てつだうよ。' } },
+        { when: endingIs('repair'),
+          say: { who: 'narrator', en: 'Haru helps you.', ja: 'ハルが てつだってくれた。' },
+          interaction: { type: 'speak', target: 'Thanks!', accepted: ['thanks', 'thank you', 'thank', 'thanks haru', 'sank you', 'tank you', 'sanks', 'tanks'], prompt: { en: 'Say: "Thanks!"', ja: '「サンクス！」と いおう' } } },
+        { when: endingIs('repair'), visual: ph('Player and Haru pick up the last wet books together. Haru almost smiles.', '🧒📚👦🙂', 'rain'),
+          say: { who: 'haru', en: 'No problem.', ja: 'いいよ。' } },
+        { when: (s) => ending(s) !== 'repair',
+          say: { who: 'narrator', en: 'Haru helps you.', ja: 'ハルが てつだってくれた。' },
           interaction: { type: 'choice', choices: [
             { verb: 'get', icon: '📚', beats: [
                 { visual: ph('Player and Haru pick up the last wet books together.', '🧒📚👦', 'rain'),
@@ -368,14 +408,38 @@ export const STORY = {
         { when: (s) => s.ignoredStudent,
           visual: ph('Ken runs up, holding the player\'s lost notebook. He hesitates, then hands it over.', '🧒🏻📓 → 🧒😳', 'rain'),
           say: { who: 'ken', en: 'Um... your notebook.', ja: 'あの…ノート。' } },
-        { when: warm, visual: ph('Player and Haru wave goodbye at Haru\'s street corner, both laughing.', '🧒👋 👦👋 😄', 'rain'),
+        // Warm: Haru walks all the way home; they laugh about the wrong house.
+        { when: endingIs('warm'), visual: ph('Player and Haru walk on together under one umbrella, all the way to the player\'s street.', '☂️ 🧒👦 → 🏠', 'rain'),
+          say: { who: 'narrator', en: 'Haru walks you home.', ja: 'ハルが いえまで いっしょに あるく。' } },
+        { when: endingIs('warm'), visual: ph('Near the player\'s house, Haru imitates the barking dog from the wrong house.', '👦🐕 "Woof!"  🧒', 'rain'),
+          say: { who: 'haru', en: 'The dog! Woof, woof!', ja: 'あの犬！ ワン、ワン！' } },
+        { when: endingIs('warm'),
+          say: { who: 'you', en: 'That was embarrassing!', ja: 'はずかしかった！' } },
+        { when: endingIs('warm'), visual: ph('Haru and player laugh under the umbrella near player\'s house.', '☂️ 🧒😆👦😆 🏠', 'rain'),
+          say: { who: 'narrator', en: 'You both laugh.', ja: 'ふたりで わらう。' } },
+        { when: endingIs('warm'), visual: ph('At the player\'s gate, Haru waves, grinning.', '🏠 🧒👋 👦👋 😄', 'rain'),
           say: { who: 'haru', en: 'See you Monday!', ja: 'また月曜日ね！' }, goto: 'home' },
-        { when: cool, visual: ph('Player and Haru part at the corner. Haru gives a small wave.', '🧒👋 👦🙂', 'rain'),
-          say: { who: 'haru', en: 'Bye. See you.', ja: 'じゃあね。' }, goto: 'home' },
+        // Repair: Haru walks part of the way; a funny memory, then a good one.
+        { when: endingIs('repair'), visual: ph('Player and Haru walk side by side to the corner of the player\'s street.', '🧒 👦 → 🏘️', 'rain'),
+          say: { who: 'narrator', en: 'Haru walks with you.', ja: 'ハルが いっしょに あるく。' } },
+        { when: (s) => endingIs('repair')(s) && s.ranFromHaru, visual: ph('Memory bubble: the player\'s umbrella flipping inside out in the wind.', '💭 🌂↯ 🧒💦', 'rain'),
+          say: { who: 'haru', en: 'Your umbrella! Whoosh!', ja: 'きみの かさ！ ビュー！' } },
+        { when: (s) => endingIs('repair')(s) && !s.ranFromHaru, visual: ph('Memory bubble: a wet worksheet stuck flat on the player\'s face.', '💭 📄😵', 'rain'),
+          say: { who: 'haru', en: 'The paper on your face!', ja: 'かおに プリント！' } },
+        { when: endingIs('repair'), say: { who: 'you', en: 'Ha ha... Yes.', ja: 'あはは…うん。' } },
+        { when: endingIs('repair'), visual: ph('Memory bubble: Mr. Kimura hugging Momo, the player and Haru beside him.', '💭 👴🐱💕 🧒👦', 'rain'),
+          say: { who: 'haru', en: 'But Momo! You were great.', ja: 'でも モモ！ すごかったよ。' } },
+        { when: endingIs('repair'), visual: ph('At the corner, Haru waves. It is a real smile now.', '🧒👋 👦😊', 'rain'),
+          say: { who: 'haru', en: 'See you Monday.', ja: 'また月曜日。' }, goto: 'home' },
+        // Quiet: Haru goes his own way; the player walks the last street alone.
+        { when: endingIs('quiet'), visual: ph('At a corner, Haru stops and points down another street.', '🧒 ... 👦👉🏘️', 'rain'),
+          say: { who: 'haru', en: 'See you.', ja: 'じゃあね。' } },
+        { when: endingIs('quiet'), visual: ph('Haru goes another way. The player walks the last street alone. The rain is lighter.', '🧒🚶 🌦️ ... 👦🚶', 'rain'),
+          say: { who: 'narrator', en: 'You walk home alone.', ja: 'ひとりで かえる。' }, goto: 'home' },
       ],
     },
 
-    // ── Final: home (WASH / WEAR / DRINK, quiet ending) ───────────────
+    // ── Final: home (WASH / WEAR / DRINK, then "How was your day?") ───
     home: {
       placeJa: 'いえ',
       beats: [
@@ -397,11 +461,29 @@ export const STORY = {
                 { visual: ph('Player holds a mug of hot milk with both hands.', '🧒☕♨️', 'warm'), say: { who: 'mom', en: 'Hot milk. Drink.', ja: 'ホットミルクよ。のんで。' } },
               ] },
           ] } },
+        { when: endingIs('quiet'), visual: ph('Player sits alone with warm drink while rain taps window.', '🧒☕  🌧️', 'warm'),
+          say: { who: 'narrator', en: 'Tap, tap. The rain is quiet.', ja: 'ポツ、ポツ。しずかな 雨。' } },
         { visual: ph('Mom\'s phone buzzes. A photo: the player, Haru and Momo with Mr. Kimura. Message: "Thank you! — Kimura"', '📱 🖼️(🧒🐱👦👴) "Thank you!"', 'warm'),
           say: { who: 'mom', en: 'A photo? Who is Momo?', ja: '写真？ モモって だれ？' } },
         { when: (s) => s.helpedMrsSato, say: { who: 'mom', en: 'Mrs. Sato called, too!', ja: 'さとうさんからも 電話が あったよ！' } },
-        { visual: ph('Mom smiles and rubs the player\'s head. Outside the window, the rain is soft now.', '👩🤲🧒  🪟🌦️', 'warm'),
+        { visual: ph('Mom smiles and rubs the player\'s head. Outside the window, the rain is soft now.', '👩🤲🧒  🌦️', 'warm'),
           say: { who: 'mom', en: "I'm proud of you.", ja: 'えらかったね。' } },
+        // Reflection: the answer only changes Mom's reply, never the ending.
+        { say: { who: 'mom', en: 'How was your day?', ja: 'きょうは どうだった？' },
+          interaction: { type: 'choice', choices: [
+            { label: 'It was fun.', icon: '😄', labelJa: 'たのしかった。', beats: [
+                { say: { who: 'you', en: 'It was fun.', ja: 'たのしかった。' } },
+                { say: { who: 'mom', en: "I'm glad.", ja: 'よかった。' } },
+              ] },
+            { label: "I'm tired.", icon: '😪', labelJa: 'つかれた。', beats: [
+                { say: { who: 'you', en: "I'm tired.", ja: 'つかれた。' } },
+                { say: { who: 'mom', en: 'Rest now. Good job today.', ja: 'ゆっくり やすんでね。おつかれさま。' } },
+              ] },
+            { label: 'It was difficult.', icon: '😓', labelJa: 'たいへんだった。', beats: [
+                { say: { who: 'you', en: 'It was difficult.', ja: 'たいへんだった。' } },
+                { say: { who: 'mom', en: 'But you did it.', ja: 'でも、ちゃんと できたね。' } },
+              ] },
+          ] } },
         { say: { who: 'narrator', en: 'The rain is soft now.', ja: '雨は もう やさしい。' },
           interaction: { type: 'recap' } },
       ],

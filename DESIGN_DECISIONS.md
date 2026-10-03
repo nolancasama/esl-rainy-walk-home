@@ -56,3 +56,43 @@ A useful rule:
 - **Placeholders show their art brief** (`[VISUAL: ...]`) plus an emoji stage;
   `?art=0` hides the brief text. Visuals go through a type-keyed renderer
   registry (`placeholder`, `image`, `video`).
+
+## 2026-10-03 — Progression is always explicit
+
+- Speech and camera interfaces always expose an immediate tap completion path.
+  This keeps the story playable on managed Chromebooks without browser speech or
+  media permissions; recognition and motion detection are optional input modes.
+
+## 2026-10-03 — Three ending tones (warm / repair / quiet)
+
+- `ending(state)` in `src/story.js` picks a tone from the three helping dilemmas
+  (umbrella, papers, Mrs. Sato): **warm** = haruBond >= 2 and helped at least
+  twice; **repair** = an earlier skip, and the most recent dilemma was a help
+  (a later skip undoes it); **quiet** = otherwise. Never shown to the player.
+- The tone only changes the bag scene and walk home (how Haru helps, whether he
+  walks the player home) plus one quiet beat at home. Every ending returns
+  Momo, gets home, and gets the same warm-drink sequence and Kimura's photo.
+- Repair ending gets a spoken "Thanks!" (STT + tap fallback) so the repair is
+  something the player does, and a callback to their own embarrassing moment
+  (umbrella flip or paper on the face), then a good memory (Momo).
+- Cat-scene choices (FEED/TOUCH/GO) do not count: they are about technique, not
+  about choosing to help people.
+- "How was your day?" is a phrase choice (`label`), not STT: three different
+  answers would need branching speech matching, and it only changes Mom's
+  reply. Rejected: branching STT for this one moment.
+- Gesture screens show one tap button (camera off: `RUN! (タップ)`; camera on:
+  small `タップでつづける` fallback, which becomes the main button if the
+  camera fails). Previously both buttons always showed.
+
+## 2026-10-03 — Finished art wired by manifest, not by editing the story
+
+- `art/build-manifest.mjs` writes `src/art-manifest.js`, mapping each placeholder
+  description to `art/scenes/<id>.webp` (ids as in `art/ART_PROMPTS.md`) and cast
+  ids to `art/portraits/<who>.webp`. `visuals.js` swaps a placeholder for its
+  image when one exists; otherwise the emoji placeholder still shows.
+- Keyed by description so `src/story.js` stays untouched, and an edited
+  description safely falls back to the placeholder instead of a wrong picture.
+- Images are shown whole (object-fit: contain) in a taller frame, with a blurred
+  copy filling the sides. Rejected: cropping to fill, which cut off memory
+  bubbles and faces.
+- Source PNGs (~2.7 MB each) are converted to 1600px WebP (~200 KB) for Chromebooks.

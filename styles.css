@@ -1,0 +1,245 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #172235;
+  background: #dce5ed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  border-radius: 12px;
+  min-height: 56px;
+  padding: 10px 16px;
+  background: #fff;
+  color: #172235;
+  font-weight: 700;
+}
+
+button:focus-visible {
+  outline: 4px solid #ffb300;
+}
+
+button:disabled {
+  opacity: 0.45;
+}
+
+/* Layout */
+
+.screen {
+  height: 100vh;
+  max-width: 980px;
+  margin: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.start {
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+.start h1 {
+  font-size: clamp(2rem, 6vw, 4rem);
+  margin: 0;
+}
+
+.start p {
+  font-size: 1.25rem;
+}
+
+.toggles {
+  display: flex;
+  gap: 12px;
+}
+
+.primary {
+  background: #1667b7;
+  color: white;
+  min-width: 220px;
+}
+
+.place {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #475569;
+}
+
+/* Scene visual (placeholder art). Tone sets the sky colour. */
+
+.visual {
+  height: clamp(190px, 37vh, 340px);
+  border-radius: 18px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 14px;
+  overflow: hidden;
+  transition: opacity 0.2s;
+  background: #b9cad9;
+}
+
+.tone-cloudy { background: #b9cad9; }
+.tone-rain { background: #8ba6bd; }
+.tone-storm { background: #67798c; }
+.tone-warm { background: #e6bf7e; }
+
+.stage {
+  font-size: clamp(2.8rem, 9vw, 6rem);
+  line-height: 1.1;
+}
+
+/* Stage lines that carry readable words (tags, nameplates) render smaller. */
+.stage.stage-text {
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+}
+
+/* Finished art: taller frame; the full 16:9 picture is shown, a blurred copy fills the sides. */
+.visual.has-art {
+  position: relative;
+  height: clamp(190px, 50vh, 460px);
+  padding: 0;
+  display: block;
+}
+
+.visual .art,
+.visual .art-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.visual .art {
+  object-fit: contain;
+}
+
+.visual .art-backdrop {
+  object-fit: cover;
+  filter: blur(18px) brightness(0.85);
+  transform: scale(1.1);
+}
+
+.portrait {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+
+.visual-description {
+  border: 2px dashed #52677a;
+  background: #ffffffb8;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 8px;
+  max-width: 720px;
+}
+
+/* Speaker line */
+
+.speaker {
+  min-height: 68px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: #fff;
+  border-radius: 15px;
+  padding: 10px 14px;
+}
+
+.speaker .line {
+  flex: 1;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+}
+
+.speaker .message {
+  border-radius: 16px;
+  background: #eaf3ff;
+  padding: 8px;
+}
+
+.tools {
+  display: flex;
+  gap: 8px;
+}
+
+.tools button {
+  min-height: 40px;
+  padding: 6px 10px;
+}
+
+/* Interaction area */
+
+.interact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  /* Buttons sit right under the speaker line; spare height stays below them. */
+  align-content: flex-start;
+  padding-top: 8px;
+  flex: 1;
+}
+
+.choice {
+  font-size: clamp(1.25rem, 3vw, 1.8rem);
+  min-width: 180px;
+  flex: 1;
+}
+
+.prompt {
+  width: 100%;
+  text-align: center;
+  font-size: 1.3rem;
+}
+
+.fallback {
+  background: #fff1cf;
+}
+
+.cam-preview {
+  width: 160px;
+  border-radius: 10px;
+  transform: scaleX(-1);
+}
+
+.status {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+
+.recap {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  overflow: auto;
+}
+
+.recap li {
+  font-size: 1.15rem;
+  margin: 8px;
+}
+
+@media (max-height: 620px) {
+  .visual,
+  .visual.has-art { height: 200px; }
+  .screen { gap: 6px; padding: 8px; }
+  .speaker { min-height: 56px; }
+  .choice { min-height: 52px; }
+}

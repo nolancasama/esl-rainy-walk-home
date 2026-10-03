@@ -41,7 +41,9 @@ Effects = { set?: {key: value}, add?: {key: number} }
 Interactions:
 
 - `{type:'choice', choices:[Choice], retry?, all?}`
-  `Choice = {verb, icon?, object?, objectJa?, effects?, beats:[Beat], goto?, success?}`.
+  `Choice = {verb, icon?, object?, objectJa?, effects?, beats:[Beat], goto?, success?}`,
+  or a phrase choice `{label, labelJa, icon?, ...}` (button shows the phrase as written;
+  used for short answers like "It was fun.").
   Choosing applies `effects`, plays the choice's `beats` inline (they obey
   `when` and may have their own interactions, e.g. a gesture), then:
   `choice.goto` if present (string or function), else continue with the next
