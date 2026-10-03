@@ -7,6 +7,8 @@ target verbs (HELP, CATCH, LISTEN, FEED, READ...), with speaking moments
 ("Come!", "Hello!", "Thanks!") and optional camera gestures (RUN, CATCH).
 Every path gets home; earlier choices change the tone of the ending.
 
+**Play:** https://nolancasama.github.io/esl-rainy-walk-home/
+
 Plain HTML/CSS/ES modules. No build step, no dependencies.
 
 ## Run
