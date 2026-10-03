@@ -1,41 +1,63 @@
-﻿# Current State
+# Current State
 
 ## Status (2026-10-03)
-MVP playable start to finish. Story: 12 scenes in `src/story.js` (school →
-umbrella → papers → Mrs. Sato → listen → come/softly → tag → wrong house →
-reunion → bag → home + recap). Engine, UI, TTS, STT, camera-motion gestures and
-tests per `SPEC.md`. Finished art: all 79 scenes and 8 portraits in `art/`; any scene without art falls back to its emoji placeholder. Weak matches worth regenerating: home-04, bag-04, bag-05, bag-01 (Momo shown), papers-08 (stray kid). Add art: save `art/scenes/<id>.webp` and run `node art/build-manifest.mjs`.
-Three ending tones (warm / repair / quiet, `ending()` in `src/story.js`) vary the
-bag scene and walk home; home ends with a "How was your day?" phrase choice.
-Debug an ending: `?scene=bag&set=haruBond:3,helpCount:3` (warm),
-`?scene=bag&set=skipCount:1,repaired:true` (repair), `?scene=bag` (quiet).
+
+Rainy Walk Home is playable start to finish as a full-bleed interactive
+storybook. It has an illustrated intro, overlaid dialogue and interaction cards,
+per-line HTML phone notifications, stable scene-art ids, hint reset, restrained
+art/card transitions, procedural ambience and sound effects, STT, and optional
+camera-motion gestures. TTS has been removed.
+
+The story still contains 12 scenes (school → umbrella → papers → Mrs. Sato →
+listen → come/softly → tag → wrong house → reunion → bag → home + recap). The
+warm, repair and quiet endings and all existing choices/interactions remain
+unchanged. `window.storyRunner` exposes read-only `state` and `view` for the
+browser harness.
+
+All 79 placeholder ids resolve through `SCENE_ART` to existing scene files.
+Aliases in `art/aliases.json` intentionally reuse art for `home-04`, `bag-04`
+and `bag-05`. Missing art still falls back to the stage emoji and visual brief.
 
 ## How to run
-- `npm run serve` → http://localhost:8020 (any static server works; ES modules
-  need a correct JS MIME type).
-- `npm test` — 13 unit tests (engine semantics, story integrity, exhaustive DFS
-  over every choice path reaching all three endings, ending selection, Haru/Sato
-  variants, speech matching, gesture math).
-- `npm run test:browser` — Playwright (from `C:/Users/nolan/ui-verify`) plays
-  two full paths at 1366×768 via tap fallbacks, checks console errors and page
-  scroll, writes `shots/`. Fails (exit 1) if Playwright cannot load.
-- Debug params: `?scene=<id>`, `?set=haruBond:2,hasSnack:true`, `?art=0`, `?cam=1`.
-- `window.storyRunner` exposes read-only `state` / `view` for harnesses.
 
-## Verified
-- Unit + browser playthrough pass; no scroll at 1366×768 and 1024×600.
-- Camera path with Chromium fake webcam: preview, motion meter, no errors,
-  no false trigger, tap fallback present.
+- `npm run serve` → `http://localhost:8020`
+- `npm test` → unit tests, including story paths and stable art-id integrity
+- `npm run test:browser` → Playwright playthroughs at 1366×768 and 1024×600;
+  writes acceptance screenshots to `shots/`
+- Debug parameters: `?scene=<id>`, `?set=haruBond:2,hasSnack:true`, `?art=0`,
+  `?cam=1`
 
-## Known issues / not yet verified
-- STT and gesture thresholds (`runDetected` 12 / `catchDetected` 22) are
-  untested with real children, real webcams and real Chromebook mics.
-- TTS voice quality depends on the ChromeOS image.
-- Browser playthrough covers the warm (first-choice) and quiet (last-choice)
-  endings; repair is covered by unit tests and a manual screenshot only.
-- All work since the first commit is uncommitted.
+## Art fixes
 
-## Next Steps
-- Read through the three endings in the browser (debug links above) for tone.
-- Classroom trial: speech moments ("Come!", "Hello!", "Thanks!") and RUN/CATCH with camera.
-- Replace placeholders with art via the `visuals.js` registry (`image`/`video`).
+`art/ART_FIXES.md` is the regeneration queue:
+
+- `bag-01` — Momo appears after she has gone home (highest priority)
+- `home-04` — player is shown outdoors
+- `bag-04` — Haru is already kneeling instead of pausing
+- `bag-05` — an extra girl replaces the player
+- `papers-08` — stray child in a yellow raincoat
+- `umbrella-01` and `home-07` — compositions should not depend on readable
+  phone screens
+
+Do not change visual ids when regenerating. Replace the matching
+`art/scenes/<id>.webp` and rebuild the manifest if aliases or available files
+change.
+
+## Optional sound files
+
+The file slots `meow`, `hiss`, `purr`, `bark`, `door` and `orange` are currently
+empty; their calls are silent and make no network request. To add one:
+
+1. Save an MP3 as `audio/sfx/<name>.mp3`.
+2. Add that exact name to the `SOUND_FILES` array in `src/sound-files.js`.
+3. Confirm the browser playthrough has no failed request or console error.
+
+All other listed ambience and effects are generated procedurally. The complete
+sound-name reference is in `audio/SOUNDS.md`.
+
+## Known issues / not yet verified in classrooms
+
+- STT and motion thresholds have not been evaluated with real children, real
+  webcams and managed Chromebook microphone policies.
+- The seven images in `art/ART_FIXES.md` still need regeneration.
+- Optional MP3 sound slots remain unfilled.

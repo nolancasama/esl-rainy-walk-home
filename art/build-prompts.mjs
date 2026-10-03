@@ -42,20 +42,19 @@ const CAST = [
 
 const usesText = (d) => /[A-Z]{4,}|"/.test(d);
 
-// Collect unique visuals in story order.
+// Collect unique stable art ids in story order.
 const seen = new Map();
 const order = [];
 function walk(sceneId, beats) {
   for (const beat of beats) {
     const v = beat.visual;
     if (v?.type === 'placeholder') {
-      if (!seen.has(v.description)) {
-        const n = order.filter((o) => o.scene === sceneId).length + 1;
-        const item = { scene: sceneId, id: `${sceneId}-${String(n).padStart(2, '0')}`, visual: v, uses: 0 };
-        seen.set(v.description, item);
+      if (!seen.has(v.id)) {
+        const item = { scene: sceneId, id: v.id, visual: v, uses: 0 };
+        seen.set(v.id, item);
         order.push(item);
       }
-      seen.get(v.description).uses += 1;
+      seen.get(v.id).uses += 1;
     }
     for (const choice of beat.interaction?.choices || []) walk(sceneId, choice.beats || []);
   }
@@ -92,7 +91,7 @@ const out = [];
 out.push('# Rainy Walk Home — Art Prompts', '');
 out.push(`Generated from \`src/story.js\` (${order.length} images). One prompt per placeholder;`);
 out.push('each is self-contained, so paste it as-is into the image generator.', '');
-out.push('- **File name:** save as `art/<id>.webp` (16:9, about 1600×900).');
+out.push('- **File name:** save as `art/scenes/<id>.webp` (16:9, about 1600×900).');
 out.push('- **Text in pictures** (nameplates, tag, phone message): generators garble words, so');
 out.push('  prompts ask for blank signs. Add the words afterwards in any editor.');
 out.push('- **Consistency:** generate the character sheet first and use it as a reference image');

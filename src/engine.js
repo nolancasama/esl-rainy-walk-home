@@ -201,6 +201,7 @@ export function createRunner(story, { initialState = {}, scene } = {}) {
       sceneId,
       visual,
       say: current?.say || null,
+      sfx: current?.sfx || null,
       interaction,
       choices: interaction?.type === 'choice'
         ? interaction.choices.map((choice, index) => ({

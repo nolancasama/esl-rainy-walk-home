@@ -96,3 +96,26 @@ A useful rule:
   copy filling the sides. Rejected: cropping to fill, which cut off memory
   bubbles and faces.
 - Source PNGs (~2.7 MB each) are converted to 1600px WebP (~200 KB) for Chromebooks.
+
+## 2026-10-03 — Storybook presentation and stable media contracts
+
+- **TTS was removed; STT remains.** Students read the deliberately short English
+  dialogue themselves, while explicit speaking activities retain forgiving
+  recognition and a tap fallback. Automatic narration and replay-speaker chrome
+  distracted from the picture-book pacing.
+- **The UI is a full-bleed overlay picture book.** Scene art now covers the
+  viewport, with restrained crossfades, a readable bottom scrim, and paper
+  dialogue/interaction cards over the lower part of the art. The intro reuses
+  `school-01` rather than introducing separate title artwork.
+- **Scene art is keyed by stable ids, not descriptions.** Each placeholder owns
+  an id that survives copy edits. The generated manifest maps ids to files, and
+  `art/aliases.json` records deliberate reuse (`home-04 → home-02`,
+  `bag-04 → bag-02`, `bag-05 → bag-03`) without making runtime matching fuzzy.
+- **Phone presentation is per line and rendered in HTML.** `say.message` selects
+  the notification card and `say.photo` optionally embeds scene art. This avoids
+  treating a character's in-person lines as messages. Portraits are reserved
+  for these message cards; ordinary dialogue relies on the full-scene artwork.
+- **Audio is procedural by default.** Web Audio supplies tone-based ambience and
+  lightweight one-shots without asset downloads. A small explicit allow-list
+  gates optional MP3 slots, so missing files are silent rather than generating
+  requests or blocking progression.

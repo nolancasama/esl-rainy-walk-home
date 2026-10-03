@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { SCENE_ART } from '../src/art-manifest.js';
 import { createRunner } from '../src/engine.js';
 import { STORY, ending } from '../src/story.js';
 import { VOCAB_BY_ID } from '../src/vocab.js';
@@ -10,6 +14,25 @@ function walk(beats, visit) {
     for (const choice of beat.interaction?.choices || []) walk(choice.beats || [], visit);
   }
 }
+
+test('every placeholder has one stable id and resolves to existing art', () => {
+  const descriptions = new Map();
+  walk(Object.values(STORY.scenes).flatMap((scene) => scene.beats), (beat) => {
+    if (beat.visual?.type !== 'placeholder') return;
+    const { id, description } = beat.visual;
+    assert.ok(id, `missing art id: ${description}`);
+    if (descriptions.has(id)) assert.equal(descriptions.get(id), description, id);
+    else descriptions.set(id, description);
+  });
+
+  assert.equal(descriptions.size, 79);
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  for (const id of descriptions.keys()) {
+    assert.ok(fs.existsSync(path.join(root, `art/scenes/${id}.webp`)), `missing source art: ${id}`);
+    assert.ok(SCENE_ART[id], `missing manifest entry: ${id}`);
+    assert.ok(fs.existsSync(path.join(root, SCENE_ART[id])), `missing resolved art: ${id}`);
+  }
+});
 
 function drive(runner, decisions) {
   let steps = 0;
