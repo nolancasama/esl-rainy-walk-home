@@ -55,7 +55,7 @@ export const SCENE_ART = {
   "bag-01": "art/scenes/bag-01.webp",
   "bag-02": "art/scenes/bag-02.webp",
   "bag-03": "art/scenes/bag-03.webp",
-  "bag-04": "art/scenes/bag-02.webp",
+  "bag-04": "art/scenes/bag-04.webp",
   "bag-05": "art/scenes/bag-05.webp",
   "bag-06": "art/scenes/bag-06.webp",
   "bag-07": "art/scenes/bag-07.webp",

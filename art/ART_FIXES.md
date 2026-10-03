@@ -32,8 +32,8 @@ Continuity rules the prompts now enforce:
 2. `wrongHouse-02` — Momo loose on the step instead of in the player's arms; gate
    bars and a dark box clutter the doorway; the dog's anatomy needs to be clean.
 3. `bag-01` — Momo is still in the player's arms after she has gone home; must
-   also show the light rain starting again.
-4. `bag-04` — Haru is already kneeling instead of pausing (aliased to `bag-02`).
+   also show the light rain starting again. (A golden-hour walking image was
+   rejected for this slot: no spilled books and no returning rain.)
 
 For the two wrong-house scenes, match the houses in the new `wrongHouse-04` and
 `wrongHouse-06` (pale blue two-storey houses, wooden doors, stone gateposts) and
@@ -41,12 +41,9 @@ use them as reference images if the generator allows.
 
 ## Optional
 
-5. `papers-02` (new art) — the umbrella blows inside out mid-jump, which reads as
-   a second flip on paths where it never flipped. The prompt now says it stays
-   open; redo only if this bothers you.
-6. `tag-04` — cherry blossoms in the June hydrangea season; a stray calico cat.
-7. `reunion-05` — a small stray calico cat on a wall.
-8. Background calico cats in `bag-06` read as a clue during the cat search.
+4. `tag-04` — cherry blossoms in the June hydrangea season; a stray calico cat.
+5. `reunion-05` — a small stray calico cat on a wall.
+6. Background calico cats in `bag-06` read as a clue during the cat search.
 
 Minor flaws accepted in the new art: in `home-02` the set-down randoseru is
 brown, not navy; in `bag-03` a spare navy bag lies on the ground.
@@ -54,7 +51,7 @@ brown, not navy; in `bag-03` a spare navy bag lies on the ground.
 ## Done (2026-10-03, second batch)
 
 `photo-momo`, `home-02` to `home-08`, `umbrella-01`, `umbrella-04`, `papers-02`,
-`papers-08`, `wrongHouse-04`, `wrongHouse-06`, `bag-03`, `bag-05`, `bag-11`, and
+`papers-08`, `bag-04`, `wrongHouse-04`, `wrongHouse-06`, `bag-03`, `bag-05`, `bag-11`, and
 `art/reference/player-home-outfit.webp`.
 
 ## Checked and fine as is
