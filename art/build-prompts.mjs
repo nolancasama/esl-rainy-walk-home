@@ -13,12 +13,12 @@ const STYLE = 'Warm children\'s picture-book illustration, soft watercolor and g
 
 const LIGHT = {
   cloudy: 'Overcast late-afternoon light, gray-blue sky.',
-  rain: 'Steady rain, wet reflective pavement, cool blue-gray palette, overcast gray sky '
-    + '(no sunset, no sunshine).',
+  rain: 'Rain, wet reflective pavement, cool blue-gray palette, overcast gray sky.',
   storm: 'Strong wind and heavy rain, dramatic diagonal rain streaks, darker slate palette.',
-  // Only indoor scenes use `warm`: it never rains less outside just because the room is cozy.
-  warm: 'Warm golden indoor lamplight, cozy amber palette. Through any window or open door: '
-    + 'a gray-blue evening with light rain, never a sunset or sunshine.',
+  // `warm` is the story's one weather break (reunion, said aloud) and the cozy home after it.
+  warm: 'Warm golden evening light, cozy amber palette. Outdoors the rain has just stopped: '
+    + 'golden sunset light breaking through the clouds, wet shining ground. Indoors: warm lamplight, '
+    + 'with golden dusk and a light drizzle on the windows.',
 };
 
 // Fixed character sheet so every prompt draws the same people. Entries with a

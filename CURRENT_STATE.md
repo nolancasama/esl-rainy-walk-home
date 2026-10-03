@@ -32,8 +32,9 @@ the stage emoji and visual brief.
 ## Art fixes
 
 `art/ART_FIXES.md` is the prioritized regeneration queue from the 2026-10-03
-continuity audit: 23 images plus the new `photo-momo`. The main problems are
-sunset or after-rain skies at the reunion and at home, a misleading wrong house,
+continuity audit: 19 images plus the new `photo-momo`. The rain now stops at the
+reunion and returns at `bag-01` (both narrated), so the golden reunion art stays.
+The main problems are a misleading wrong house, a mirrored catch pose,
 Momo or stray cats at home, outdoor gear indoors, and duplicated or extra
 characters. The corrected prompts are in `art/ART_PROMPTS.md`; the continuity
 rules are in `DESIGN_DECISIONS.md`.
@@ -60,6 +61,6 @@ sound-name reference is in `audio/SOUNDS.md`.
 - STT and motion thresholds have not been evaluated with real children, real
   webcams and managed Chromebook microphone policies.
 - The images queued in `art/ART_FIXES.md` still need regeneration. Until then,
-  the reunion and home art shows sunsets, and the message photo is a stand-in
+  the message photo is a stand-in
   (`reunion-06`, in which Kimura is visible taking the photo).
 - Optional MP3 sound slots remain unfilled.

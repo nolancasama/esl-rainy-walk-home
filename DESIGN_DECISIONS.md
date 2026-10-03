@@ -122,12 +122,18 @@ A useful rule:
 
 ## 2026-10-03 — Art continuity rules
 
-- **It keeps raining through the reunion.** Reunion art is staged under Mr.
-  Kimura's porch eave with steady rain behind, and the reunion visuals use the
-  `rain` tone, so the ambience stays rainy too. The rain only lightens on the
-  walk home and at home, which matches the text ("Rain is lighter", "the rain is
-  soft now"). The `warm` tone now means indoor lamplight only. Rejected: golden
-  after-rain light at the reunion, because the story never says the rain stopped.
+- **The rain stops for the reunion and comes back on the walk home, and the
+  story says so both times.** A narrator line at `reunion-03` ("The rain
+  stops!") and one at `bag-01` ("Drip, drip... Rain again!") explain the golden
+  reunion art; the `warm` tone also stops the rain ambience at that moment.
+  Home windows show golden dusk with drizzle. Rejected: regenerating the reunion
+  in rain, which cost four images for no story gain; and unexplained golden light.
+- **The flipped umbrella is not broken.** `umbrella-04` shows the player
+  pushing it back into shape, and a narrator line says "You fix the umbrella."
+  Every later scene with an intact blue umbrella stays valid. There is one blue
+  umbrella, always the player's. Haru only holds it when the player's arms are
+  full of Momo, and those prompts say so. Rejected: a permanently broken
+  umbrella, which would have needed every later walking scene redrawn.
 - **The wrong house is a too-quick choice, not a misleading clue.** Both blue
   houses look the same; only Kimura's has a cat door. Haru's line changed from
   "Look! Cat stickers!" to "Look! A blue house!". Rejected: cat stickers, which
