@@ -178,3 +178,18 @@ A useful rule:
 - **Kimura's photo keeps the id `photo-momo`.** It already shows exactly the
   player, Haru, Momo and the blue umbrella, without Mr. Kimura. Renaming it to
   `kimura-photo-01` would only churn ids.
+
+## 2026-10-04 — Optional onboarding before the unchanged story
+
+- **The vocabulary warm-up sits after the existing permission request and before
+  runner creation.** It rehearses HELP, CATCH, LISTEN, LOOK, READ, RUN and FEED in
+  that order with generic emoji mini-scenes, and can be skipped. Debug scene
+  starts and `?warmup=0` bypass it entirely.
+- **Tutorial progress is separate from story state.** One-time tips for hint,
+  verb choices, speech and gestures live only in module-level session state,
+  reset on replay and reload, and never read or write relationship, choice or
+  ending variables.
+- **Help covers controls only.** The in-story `?` overlay explains choosing an
+  action, microphone, camera, Japanese hints and tap fallbacks. It deliberately
+  omits endings, relationships, hidden state and choice quality, and opens or
+  closes without advancing or re-rendering the current beat.

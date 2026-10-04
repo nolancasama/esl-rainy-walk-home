@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SCENE_ART } from '../../src/art-manifest.js';
+import { WARMUP_ITEMS } from '../../src/warmup.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const shots = path.join(root, 'shots');
@@ -74,22 +75,27 @@ async function viewSnapshot(page) {
 }
 
 async function waitForViewChange(page, previous) {
-  await waitFor(page, 'story did not advance', (serialized) => {
-    const view = window.storyRunner?.view;
-    if (!view) return false;
-    const current = {
-      sceneId: view.sceneId,
-      visualId: view.visual?.id,
-      say: view.say?.en,
-      interaction: view.interaction?.type,
-      target: view.interaction?.target || view.interaction?.gesture,
-      choices: view.choices?.map((choice) => ({
-        verb: choice.verb, label: choice.label, disabled: choice.disabled,
-      })),
-      recap: Boolean(view.recap),
-    };
-    return JSON.stringify(current) !== serialized;
-  }, JSON.stringify(previous));
+  try {
+    await page.waitForFunction((serialized) => {
+      const view = window.storyRunner?.view;
+      if (!view) return false;
+      const current = {
+        sceneId: view.sceneId,
+        visualId: view.visual?.id,
+        say: view.say?.en,
+        interaction: view.interaction?.type,
+        target: view.interaction?.target || view.interaction?.gesture,
+        choices: view.choices?.map((choice) => ({
+          verb: choice.verb, label: choice.label, disabled: choice.disabled,
+        })),
+        recap: Boolean(view.recap),
+      };
+      return JSON.stringify(current) !== serialized;
+    }, JSON.stringify(previous), { timeout: 10_000 });
+  } catch (error) {
+    const current = await viewSnapshot(page);
+    harnessFailure(`story did not advance from ${JSON.stringify(previous)}; current ${JSON.stringify(current)} (${error.message})`);
+  }
 }
 
 async function assertLayout(page, label) {
@@ -217,11 +223,38 @@ async function capture(page, filename) {
   await page.screenshot({ path: path.join(shots, filename) });
 }
 
+async function skipWarmup(page) {
+  const skip = await visibleButton(
+    page,
+    '#warmup-skip, .warmup-screen button:has-text("スキップ")',
+    'warm-up skip button',
+  );
+  await skip.click();
+}
+
+async function assertHelpStable(page) {
+  const before = await viewSnapshot(page);
+  await (await visibleButton(page, '#help-button', 'help button')).click();
+  await page.locator('#help-overlay').waitFor({ state: 'visible', timeout: 10_000 });
+  await assertLayout(page, 'help overlay');
+  if (JSON.stringify(await viewSnapshot(page)) !== JSON.stringify(before)) {
+    harnessFailure('opening help changed the current story view');
+  }
+  await capture(page, 'help.png');
+  await (await visibleButton(page, '#help-close', 'help close button')).click();
+  await page.locator('#help-overlay').waitFor({ state: 'hidden', timeout: 10_000 });
+  if (JSON.stringify(await viewSnapshot(page)) !== JSON.stringify(before)) {
+    harnessFailure('closing help changed the current story view');
+  }
+}
+
 async function assertHintReset(page) {
   const before = await page.evaluate(() => window.storyRunner?.view?.say);
   if (!before?.ja) harnessFailure('first dialogue has no Japanese hint');
+  await page.locator('[data-tutorial-tip="hint"]').waitFor({ state: 'visible', timeout: 10_000 });
   const hint = await visibleButton(page, '#hint, button:has-text("ヒント")', 'hint button');
   await hint.click();
+  await page.locator('[data-tutorial-tip="hint"]').waitFor({ state: 'hidden', timeout: 3_000 });
   await waitFor(page, 'Japanese hint did not appear', (ja) => document.body.innerText.includes(ja), before.ja);
   const previous = await viewSnapshot(page);
   const next = await visibleButton(
@@ -233,6 +266,97 @@ async function assertHintReset(page) {
     page, 'Japanese hint did not reset after advancing',
     (ja) => !document.body.innerText.includes(ja), before.ja,
   );
+  if (await page.locator('[data-tutorial-tip="hint"]:visible').count()) {
+    harnessFailure('hint tutorial appeared again after the first beat');
+  }
+}
+
+async function warmupRun({ name, viewport, screenshot, complete }) {
+  const page = await browser.newPage({ viewport });
+  await page.route('https://fonts.googleapis.com/**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'text/css',
+    body: '',
+  }));
+  const failures = [];
+  const record = (kind, detail) => failures.push(`${kind}: ${detail}`);
+  page.on('console', (message) => { if (message.type() === 'error') record('console error', message.text()); });
+  page.on('pageerror', (error) => record('page error', error.message));
+  page.on('requestfailed', (request) => record(
+    'failed request', `${request.method()} ${request.url()} (${request.failure()?.errorText || 'unknown'})`,
+  ));
+  page.on('response', (response) => {
+    if (response.status() >= 400) record('HTTP error', `${response.status()} ${response.url()}`);
+  });
+
+  try {
+    await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded' });
+    await configure(page, { soundOff: true });
+    await (await visibleButton(page, '#start', 'start button')).click();
+    await page.locator('.warmup-screen').waitFor({ state: 'visible', timeout: 10_000 });
+    if (await page.evaluate(() => Boolean(window.storyRunner))) {
+      harnessFailure(`${name}: story runner existed during warm-up`);
+    }
+    await page.evaluate(() => {
+      window.__runnerDuringWarmup = false;
+      const monitor = () => {
+        if (window.onboarding?.warmup?.active && window.storyRunner) {
+          window.__runnerDuringWarmup = true;
+        }
+        if (window.onboarding?.warmup?.active) requestAnimationFrame(monitor);
+      };
+      requestAnimationFrame(monitor);
+    });
+    await assertLayout(page, `${name} warm-up`);
+    await capture(page, screenshot);
+
+    if (complete) {
+      for (let index = 0; index < WARMUP_ITEMS.length; index += 1) {
+        const item = WARMUP_ITEMS[index];
+        const verb = index === 0
+          ? item.choices.find((choice) => choice !== item.verb)
+          : item.verb;
+        const byValue = page.locator(`[data-warmup-choice="${verb}"]`);
+        const button = await byValue.count()
+          ? byValue.first()
+          : page.getByRole('button', { name: new RegExp(`^${verb}\\b`, 'i') }).first();
+        await button.waitFor({ state: 'visible', timeout: 10_000 });
+        await button.click();
+        if (index < WARMUP_ITEMS.length - 1) {
+          await waitFor(
+            page,
+            `warm-up item ${index + 1} did not advance`,
+            (previous) => window.onboarding?.warmup?.active
+              && window.onboarding.warmup.index > previous,
+            index,
+          );
+          if (await page.evaluate(() => Boolean(window.storyRunner))) {
+            harnessFailure(`${name}: story runner existed before warm-up ended`);
+          }
+          await assertLayout(page, `${name} warm-up item ${index + 2}`);
+        }
+      }
+
+      await waitFor(page, 'story did not begin after warm-up', () => Boolean(window.storyRunner?.view?.say));
+      if (await page.evaluate(() => window.__runnerDuringWarmup)) {
+        harnessFailure(`${name}: story runner was created before warm-up ended`);
+      }
+      const states = await page.evaluate(async () => {
+        const [{ createRunner }, { STORY }] = await Promise.all([
+          import('/src/engine.js'),
+          import('/src/story.js'),
+        ]);
+        return { actual: window.storyRunner.state, expected: createRunner(STORY).state };
+      });
+      if (JSON.stringify(states.actual) !== JSON.stringify(states.expected)) {
+        harnessFailure(`${name}: warm-up changed initial story state`);
+      }
+      await assertBeat(page, name, 0);
+    }
+    if (failures.length) throw new Error(`${name}\n${failures.join('\n')}`);
+  } finally {
+    await page.close();
+  }
 }
 
 async function play({ name, route, viewport, soundOff = false, mainShots = false, compactShots = false }) {
@@ -247,6 +371,9 @@ async function play({ name, route, viewport, soundOff = false, mainShots = false
   }));
   const failures = [];
   const captured = new Set();
+  let verbChoiceCount = 0;
+  let speechChecked = false;
+  let gestureChecked = false;
   const record = (kind, detail) => failures.push(`${kind}: ${detail}`);
   page.on('console', (message) => { if (message.type() === 'error') record('console error', message.text()); });
   page.on('pageerror', (error) => record('page error', error.message));
@@ -271,12 +398,14 @@ async function play({ name, route, viewport, soundOff = false, mainShots = false
     await configure(page, { soundOff });
     const start = await visibleButton(page, '#start, button:has-text("はじめる")', 'start button');
     await start.click();
+    await skipWarmup(page);
     await waitFor(page, 'first story beat was not exposed', () => Boolean(window.storyRunner?.view?.say));
     await assertBeat(page, name, 0);
     await captureOnce('dialogue', mainShots
       ? 'dialogue.png' : (compactShots ? 'dialogue-1024x600.png' : null));
 
     if (mainShots) {
+      await assertHelpStable(page);
       await assertHintReset(page);
       await assertBeat(page, name, 1);
     }
@@ -306,13 +435,33 @@ async function play({ name, route, viewport, soundOff = false, mainShots = false
 
       const previous = view;
       if (view.interaction === 'choice') {
+        const isVerbChoice = view.choices.some((choice) => choice.verb && !choice.label);
+        if (mainShots && isVerbChoice) {
+          verbChoiceCount += 1;
+          if (verbChoiceCount === 1) {
+            await page.locator('[data-tutorial-tip="choice"]').waitFor({ state: 'visible', timeout: 10_000 });
+            await captureOnce('tip-choice', 'tip-choice.png');
+          } else if (verbChoiceCount === 2
+            && await page.locator('[data-tutorial-tip="choice"]:visible').count()) {
+            harnessFailure('choice tutorial appeared again on the second verb choice');
+          }
+        }
         const index = desiredChoice(view, route);
         const button = await visibleButton(page, `[data-choice="${index}"]`, `choice ${index + 1} in ${view.sceneId}`);
         await button.click();
       } else if (view.interaction === 'speak') {
-        await (await visibleButton(page, '#done, button:has-text("言ったよ")', 'speech fallback')).click();
+        if (mainShots && !speechChecked) {
+          speechChecked = true;
+          await page.locator('[data-tutorial-tip="speech"]').waitFor({ state: 'visible', timeout: 10_000 });
+          await visibleButton(page, '#done', 'speech fallback while microphone is off');
+        }
+        await (await visibleButton(page, '#done', 'speech fallback')).click();
       } else if (view.interaction === 'gesture') {
-        await (await visibleButton(page, '#tap, button:has-text("タップ")', 'gesture fallback')).click();
+        if (mainShots && !gestureChecked) {
+          gestureChecked = true;
+          await visibleButton(page, '#tap', 'gesture tap fallback while camera is denied');
+        }
+        await (await visibleButton(page, '#tap', 'gesture fallback')).click();
       } else if (view.interaction === 'recap') {
         await (await visibleButton(page, '#end, button:has-text("おわり")', 'recap continue')).click();
       } else {
@@ -322,13 +471,21 @@ async function play({ name, route, viewport, soundOff = false, mainShots = false
         )).click();
       }
       await waitForViewChange(page, previous);
+      if (mainShots && view.interaction === 'choice' && verbChoiceCount === 1
+        && await page.locator('[data-tutorial-tip="choice"]:visible').count()) {
+        harnessFailure('choice tutorial remained after selecting a choice');
+      }
+      if (mainShots && view.interaction === 'speak'
+        && await page.locator('[data-tutorial-tip="speech"]:visible').count()) {
+        harnessFailure('speech tutorial remained after completing the interaction');
+      }
     }
 
     const recap = await viewSnapshot(page);
     if (!recap?.recap) harnessFailure(`${name}: recap unreached after 350 beats`);
     await assertBeat(page, name, 'recap');
     const requiredCaptures = mainShots
-      ? ['title', 'dialogue', 'choice', 'message', 'speak', 'gesture', 'wrong-house', 'home-warm', 'recap']
+      ? ['title', 'dialogue', 'choice', 'tip-choice', 'message', 'speak', 'gesture', 'wrong-house', 'home-warm', 'recap']
       : (compactShots ? ['dialogue', 'choice'] : []);
     const missingCaptures = requiredCaptures.filter((key) => !captured.has(key));
     if (missingCaptures.length) {
@@ -341,6 +498,18 @@ async function play({ name, route, viewport, soundOff = false, mainShots = false
 }
 
 try {
+  await warmupRun({
+    name: 'warmup-1366',
+    viewport: { width: 1366, height: 768 },
+    screenshot: 'warmup.png',
+    complete: true,
+  });
+  await warmupRun({
+    name: 'warmup-1024',
+    viewport: { width: 1024, height: 600 },
+    screenshot: 'warmup-1024x600.png',
+    complete: false,
+  });
   await play({ name: 'warm-1366', route: 'warm', viewport: { width: 1366, height: 768 }, mainShots: true });
   await play({ name: 'quiet-1366-sound-off', route: 'quiet', viewport: { width: 1366, height: 768 }, soundOff: true });
   await play({ name: 'repair-1366', route: 'repair', viewport: { width: 1366, height: 768 } });

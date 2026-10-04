@@ -10,6 +10,9 @@ camera-motion gestures. TTS has been removed. Mic and camera default ON and are
 requested once when はじめる is pressed; a denial falls back to tap. Ambience
 follows each visual's `weather`, which is separate from its emotional `tone`.
 The opening place label reads 松原小学校 · Matsubara Elementary School.
+An optional seven-item vocabulary warm-up now appears after permissions and
+before the story, followed by one-time contextual tips and an in-story controls
+help overlay. Onboarding state remains separate from story state.
 
 The story still contains 12 scenes (school → umbrella → papers → Mrs. Sato →
 listen → come/softly → tag → wrong house → reunion → bag → home + recap). The
@@ -29,7 +32,8 @@ the stage emoji and visual brief.
 - `npm run test:browser` → Playwright playthroughs at 1366×768 and 1024×600;
   writes acceptance screenshots to `shots/`
 - Debug parameters: `?scene=<id>`, `?set=haruBond:2,hasSnack:true`, `?art=0`,
-  `?cam=1` (force camera on), `?cam=0` (start with camera off)
+  `?warmup=0` (skip the vocabulary warm-up), `?cam=1` (force camera on),
+  `?cam=0` (start with camera off). Setting `?scene=<id>` also skips the warm-up.
 
 ## Art fixes
 
