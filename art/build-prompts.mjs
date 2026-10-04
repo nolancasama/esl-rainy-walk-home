@@ -29,15 +29,16 @@ const LIGHT = {
 // Each prompt repeats the layout in words for generators without image references.
 const LOCATIONS = {
   'cat-search-area': {
-    reference: 'art/reference/loc-cat-search.webp',
+    // Approved 2026-10-04: listen-01 is the master shot of this set.
+    reference: 'art/scenes/listen-01.webp',
     layout: 'A quiet Japanese residential side street seen from the sidewalk at child eye level, '
-      + 'the street receding toward the left-center. On the right side of the sidewalk, from front to '
-      + 'back: a large rounded blue hydrangea bush with big green leaves at the front right; just behind '
-      + 'it a red drink vending machine facing the street; directly behind and right of the vending '
-      + 'machine, a small roofed bicycle shelter (thin dark metal posts, translucent corrugated roof) '
-      + 'with four ordinary city bicycles parked side by side in a rack, front baskets toward the street; '
-      + 'a gray concrete-block wall behind the shelter. On the left side: a low stone wall and two-storey '
-      + 'houses with lit windows. Wet gray paving, one round manhole cover mid-sidewalk, utility poles.',
+      + 'the street receding toward the left-center. Along the right side of the sidewalk, from back to '
+      + 'front: a small roofed bicycle shelter (thin dark metal posts, translucent flat roof) with four '
+      + 'ordinary city bicycles parked side by side in a rack, front baskets toward the street, against '
+      + 'a gray concrete-block wall; then, nearest the viewer at the right edge, a tall red drink vending '
+      + 'machine facing the street, with a large rounded blue hydrangea bush in front of it at the far '
+      + 'right. On the left side: a low stone wall and two-storey houses with lit windows. Wet gray '
+      + 'paving, one round manhole cover mid-sidewalk, utility poles.',
     ids: ['listen-01', 'listen-02', 'listen-04', 'listen-05', 'come-01', 'come-02', 'come-03',
       'come-04', 'come-05', 'come-06', 'come-07', 'softly-01', 'softly-02'],
   },
@@ -201,7 +202,7 @@ for (const [name, place] of Object.entries(LOCATIONS)) {
     out.push('```', `${STYLE} Empty establishing plate, no people and no animals. ${place.layout} `
       + `${LIGHT.rain}`, '```', '');
   } else {
-    out.push('Already exists (no people in it); use that image as the reference.', '');
+    out.push('Already exists; use that image as the reference.', '');
   }
 }
 

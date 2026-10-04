@@ -29,42 +29,32 @@ Continuity rules the prompts now enforce:
 
 ## Location references (film sets)
 
-Generate or approve the master plate first and pass it as the reference image for
-every listed scene. Each scene prompt also restates the layout in words.
+Pass the master shot as the reference image for every listed scene. Each scene
+prompt also restates the layout in words.
 
-- **cat-search-area** → `art/reference/loc-cat-search.webp` (NEW, empty plate;
-  prompt in `ART_PROMPTS.md`). Hydrangea bush front right, red vending machine
-  behind it, roofed bicycle shelter behind and right of that, street receding
-  left. Shared by `listen-01`–`listen-05` (not `-03`), `come-01`–`come-07`,
-  `softly-01`, `softly-02`. Existing `listen-02`, `listen-04`, `listen-05`,
-  `come-05`, `come-06` are close enough to keep. `come-07`, `softly-01` and
-  `softly-02` show no landmarks; they're acceptable as tight shots.
-- **blue-houses** → `art/scenes/wrongHouse-04.webp` (exists, no people). Left
-  house = Tanaka (black gate), right house = Kimura (cat door). Shared by
-  `wrongHouse-01/02/04/05/06`, `reunion-01`, `reunion-02`. `wrongHouse-05`,
-  `wrongHouse-06` and `reunion-02` already match.
+- **cat-search-area** → `art/scenes/listen-01.webp` (approved 2026-10-04).
+  Bicycle shelter with four bicycles against a block wall, then the red vending
+  machine nearest the viewer at the right, a blue hydrangea bush in front of it,
+  street receding left. Shared by `listen-01`–`listen-05` (not `-03`),
+  `come-01`–`come-07`, `softly-01`, `softly-02`. `listen-02`, `listen-04`,
+  `listen-05`, `come-05`, `come-06` are close enough to keep; `come-07`,
+  `softly-01` and `softly-02` show no landmarks and are acceptable tight shots.
+- **blue-houses** → `art/scenes/wrongHouse-04.webp` (no people). Left house =
+  Tanaka (black gate), right house = Kimura (cat door). Shared by
+  `wrongHouse-01/02/04/05/06`, `reunion-01`, `reunion-02`.
 
 ## Still to regenerate
 
-1. `loc-cat-search` (reference plate, generate first and approve).
-2. `listen-01`: a cat still peeks out of the bush before the search starts.
-   Becomes the wide establishing shot of the cat-search set.
-3. `come-01`: warped, oversized bicycle wheels; make the hiding place clear.
-4. `come-02`: the cat is on a house doorstep, not at the bicycle shelter.
-5. `come-03`: the cat eats by a house gate; Haru is missing.
-6. `come-04`: a calico cat sits on a gatepost mid-search; not at the shelter.
-7. `wrongHouse-01`: cat stickers and paw prints on the wrong house; Haru stands
-   in its doorway as if he lives there.
-8. `wrongHouse-02`: Momo loose on the step instead of in the player's arms; a
-   gate and dark box clutter the doorway; the dog is on a leash.
-9. `reunion-01`: Kimura's door has no cat door and a different design from the
-   blue-houses set; Momo sits on the ground.
-10. `sato-04`: Haru holds Mrs. Sato's purple umbrella with no handoff; three
-    grocery bags instead of two.
-11. `bag-01`: Momo is still in the player's arms after she has gone home; must
-    also show the light rain starting again.
-12. `school-01` (also the title art): the umbrella is open before the rain
-    starts, the ground is wet, cherry blossoms in June, extra children.
+1. `come-02`: the cat is on a house doorstep, not at the bicycle shelter. Use
+   `listen-01` as the reference image.
+
+## Done (2026-10-04, third batch)
+
+`school-01`, `sato-04`, `listen-01`, `come-01`, `come-03`, `come-04`,
+`wrongHouse-01`, `wrongHouse-02`, `reunion-01`, `bag-01`. The generated
+`wrongHouse-01` gave the wrong (left) house a cat door too; it was painted out
+by hand so only Kimura's door has one. No separate empty plate was generated;
+`listen-01` serves as the cat-search reference.
 
 ## Optional
 

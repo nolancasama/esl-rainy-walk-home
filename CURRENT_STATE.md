@@ -38,11 +38,9 @@ the stage emoji and visual brief.
 ## Art fixes
 
 `art/ART_FIXES.md` is the regeneration queue (re-audited image by image on
-2026-10-04). Twelve items remain: the new empty plate `loc-cat-search`, then
-`listen-01`, `come-01` to `come-04`, `wrongHouse-01`, `wrongHouse-02`,
-`reunion-01`, `sato-04`, `bag-01` and `school-01`, plus a few optional redos.
-Recurring places use master references (`cat-search-area`, `blue-houses`)
-defined in `art/build-prompts.mjs`. The rain stops at the reunion and returns
+2026-10-04). The third batch is wired in; only `come-02` remains, plus a few
+optional redos. Recurring places use master references (`cat-search-area` =
+`listen-01`, `blue-houses` = `wrongHouse-04`) defined in `art/build-prompts.mjs`. The rain stops at the reunion and returns
 at `bag-01` (both narrated). The corrected prompts are in `art/ART_PROMPTS.md`;
 the continuity rules are in `DESIGN_DECISIONS.md`. The home-outfit reference sheet is
 `art/reference/player-home-outfit.webp`.
@@ -68,9 +66,8 @@ sound-name reference is in `audio/SOUNDS.md`.
 
 - STT and motion thresholds have not been evaluated with real children, real
   webcams and managed Chromebook microphone policies.
-- Twelve images in `art/ART_FIXES.md` still need regeneration. Until then, the
-  wrong house still shows cat stickers, `bag-01` still shows Momo after she has
-  gone home, and `sato-04` shows Haru holding Mrs. Sato's umbrella.
+- `come-02` still shows Momo on a house doorstep instead of at the bicycle
+  shelter (see `art/ART_FIXES.md`).
 - The up-front permission request is verified only in headless Chromium (denied
   → tap fallback), not on a managed Chromebook with real devices.
 - Optional MP3 sound slots remain unfilled.

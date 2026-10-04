@@ -168,8 +168,8 @@ A useful rule:
   asking the first time a speak/gesture beat appears, which interrupts the story.
 - **The opening school is 松原小学校 / Matsubara Elementary School**, shown in the
   place label (`placeJa` plus optional `placeEn`), never as signage in the art.
-- **Recurring locations use a master reference.** `cat-search-area` (a new empty
-  plate) and `blue-houses` (`wrongHouse-04`) are defined in
+- **Recurring locations use a master reference.** `cat-search-area` (the approved
+  `listen-01`, used instead of a separate empty plate) and `blue-houses` (`wrongHouse-04`) are defined in
   `art/build-prompts.mjs`; every scene there gets the reference name and the
   layout in words. Rejected: per-shot environments, which moved the vending
   machine, shelter and doors between consecutive images.
