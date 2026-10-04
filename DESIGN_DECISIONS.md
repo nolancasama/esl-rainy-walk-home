@@ -153,3 +153,28 @@ A useful rule:
 - **Prompts forbid extra animals, extra children and split panels by default.**
   In a lost-cat story a stray background cat reads as plot. Phone screens face
   away or stay blank; the HTML message card carries the content.
+
+## 2026-10-04 — Weather is not tone; recurring places are film sets
+
+- **`visual.weather` is separate from `visual.tone`.** Tone is the emotional
+  palette (UI colours); weather (`cloudy`, `rain`, `storm`, `clearing`,
+  `light-rain`, `indoor-rain`) drives the ambience and the prompt lighting.
+  Previously `tone: 'warm'` silenced the rain, so the cozy home scenes lost the
+  rain the windows show. Rejected: more tone values (`warm-rain`), which keeps
+  the two ideas coupled.
+- **Mic and camera default ON and are requested once on はじめる.** A denial or
+  missing device switches that input off; an unanswered prompt stops waiting
+  after 8 s and the story starts anyway. Tap fallbacks are unchanged. Rejected:
+  asking the first time a speak/gesture beat appears, which interrupts the story.
+- **The opening school is 松原小学校 / Matsubara Elementary School**, shown in the
+  place label (`placeJa` plus optional `placeEn`), never as signage in the art.
+- **Recurring locations use a master reference.** `cat-search-area` (a new empty
+  plate) and `blue-houses` (`wrongHouse-04`) are defined in
+  `art/build-prompts.mjs`; every scene there gets the reference name and the
+  layout in words. Rejected: per-shot environments, which moved the vending
+  machine, shelter and doors between consecutive images.
+- **Mrs. Sato keeps her purple umbrella.** The children carry her two bags.
+  Rejected: Haru holding her umbrella, which needed a handoff the story lacked.
+- **Kimura's photo keeps the id `photo-momo`.** It already shows exactly the
+  player, Haru, Momo and the blue umbrella, without Mr. Kimura. Renaming it to
+  `kimura-photo-01` would only churn ids.

@@ -10,7 +10,12 @@
 const warm = (s) => s.haruBond >= 2;
 const cool = (s) => s.haruBond < 2;
 
-const ph = (id, description, stage, tone = 'rain') => ({ type: 'placeholder', id, description, stage, tone });
+// `tone` is the picture's emotional palette (UI colours). `weather` is what is
+// really happening outside and drives the ambience and the prompt lighting. A
+// scene can feel warm while it rains, so the two are never the same variable.
+export const WEATHERS = ['cloudy', 'rain', 'storm', 'clearing', 'light-rain', 'indoor-rain'];
+const ph = (id, description, stage, tone = 'rain', weather = tone) => (
+  { type: 'placeholder', id, description, stage, tone, weather });
 
 // Ending tone, chosen from the three "help someone or keep going" dilemmas
 // (umbrella, papers, Mrs. Sato). Never shown to the player; it only changes
@@ -77,15 +82,16 @@ export const STORY = {
   // Art shown inside message cards (`say.photo`), not as scene art. Same
   // placeholder shape so prompts and the manifest treat them like scenes.
   photos: {
-    'photo-momo': ph('photo-momo', 'The photo Mr. Kimura took, as a full-frame snapshot (no phone, no frame, no interface): the player and Haru crouch side by side on the wet street outside a house, smiling at the camera, with Momo sitting between them looking at the camera too. Haru makes a small peace sign. The rain has just stopped: golden evening light, wet shining ground. Mr. Kimura is not in the photo; he is the one taking it. Keep all three faces in the central horizontal band of the frame so a wide crop keeps them.', '📸 🧒🐱👦', 'warm'),
+    'photo-momo': ph('photo-momo', 'The photo Mr. Kimura took, as a full-frame snapshot (no phone, no frame, no interface): the player and Haru crouch side by side on the wet street outside a house, smiling at the camera, with Momo sitting between them looking at the camera too. Haru makes a small peace sign. The rain has just stopped: golden evening light, wet shining ground. Mr. Kimura is not in the photo; he is the one taking it. Keep all three faces in the central horizontal band of the frame so a wide crop keeps them.', '📸 🧒🐱👦', 'warm', 'clearing'),
   },
 
   scenes: {
     // ── 1. School ends ────────────────────────────────────────────────
     school: {
-      placeJa: 'がっこう',
+      placeJa: '松原小学校',
+      placeEn: 'Matsubara Elementary School',
       beats: [
-        { visual: ph('school-01', 'Friday afternoon. School gate. Player and classmate Haru walk out with school bags. Dark clouds above.', '🏫 ☁️☁️ 🧒👦', 'cloudy'),
+        { visual: ph('school-01', 'Friday afternoon at the school gate of a Japanese elementary school (no readable signs). The player and classmate Haru walk out side by side with their randoseru. Dark clouds gather above, but no rain has fallen yet: the ground is dry. The player\'s blue umbrella is still closed, hanging from one hand. Haru has no umbrella. No other children nearby.', '🏫 ☁️☁️ 🧒👦', 'cloudy'),
           sfx: 'bell',
           say: { who: 'narrator', en: 'Friday. School is finished.', ja: '金曜日。学校がおわった。' } },
         { say: { who: 'haru', en: "Let's go home!", ja: 'いっしょに帰ろう！' },
@@ -101,7 +107,7 @@ export const STORY = {
 
     // ── 2. Haru has no umbrella (dilemma: friend vs. Mom) ─────────────
     umbrella: {
-      placeJa: 'がっこうの まえ',
+      placeJa: '松原小学校の まえ',
       beats: [
         { visual: ph('umbrella-01', 'Heavy rain. Haru holds a school bag over his head, getting soaked. Player stands dry under an umbrella. Player glances at a small kids-phone; its screen is blank and flat-colored, and the message is added by the game.', '🌧️🌧️ ☂️🧒  👦💦', 'rain'),
           say: { who: 'narrator', en: 'Haru has no umbrella.', ja: 'ハルはかさをもっていない。' } },
@@ -190,7 +196,7 @@ export const STORY = {
               ] },
             { verb: 'help', icon: '🛍️', effects: merge(helped, { set: { helpedMrsSato: true, hasSnack: true }, add: { haruBond: 1, lateLevel: 1 } }), beats: [
                 noticeRepair,
-                { visual: ph('sato-04', 'Player carries one grocery bag. Haru holds the umbrella over Mrs. Sato. They walk her to her gate.', '🧒🛍️ 👦☂️👵 🏠', 'rain'),
+                { visual: ph('sato-04', 'The three walk together along the wet street toward Mrs. Sato\'s gate. Mrs. Sato, in the middle, holds her own purple umbrella over herself; that umbrella is the only thing in her hands. On one side of her, the player carries one of her cloth grocery bags in one hand and holds the blue umbrella in the other. On her other side, Haru carries her second cloth grocery bag; he has no umbrella and walks close under the edge of her purple umbrella. Exactly two grocery bags and exactly two umbrellas in the picture: the purple one and the blue one.', '🧒☂️🛍️ 👵☂️ 👦🛍️ 🏠', 'rain'),
                   say: { who: 'sato', en: "Thank you. You've grown!", ja: 'ありがとう。大きくなったねえ！' } },
                 { visual: ph('sato-05', 'At her gate Mrs. Sato gives the player a small pack of dried fish snacks (niboshi).', '👵🎁🐟 → 🧒', 'rain'),
                   say: { who: 'sato', en: 'Here. A little snack.', ja: 'はい、おやつ どうぞ。' } },
@@ -257,7 +263,7 @@ export const STORY = {
                   sfx: 'purr',
                   say: { who: 'narrator', en: "Mrs. Sato's snack! The cat eats.", ja: 'さとうさんの おやつ！ ねこが たべる。' } },
                 { when: (s) => s.hasSnack && warm(s), say: { who: 'haru', en: 'It likes you!', ja: 'なついてる！' } },
-                { when: (s) => !s.hasSnack, visual: ph('come-04', 'Player searches every pocket. Nothing. Only a pencil and an eraser.', '🧒🤷 ✏️ 🧽', 'rain'),
+                { when: (s) => !s.hasSnack, visual: ph('come-04', 'In front of the roofed bicycle shelter beside the red vending machine, the player has searched every pocket and finds nothing: only a pencil and an eraser in one open palm, the blue umbrella in the other hand, a small disappointed face. Under the parked bicycles behind, the cat peeks out, watching. Haru crouches nearby.', '🧒🤷 ✏️ 🧽', 'rain'),
                   say: { who: 'narrator', en: 'Hmm... You have no food.', ja: 'うーん…たべものが ない。' } },
               ] },
             { verb: 'touch', icon: '✋', goto: 'softly', beats: [
@@ -335,7 +341,7 @@ export const STORY = {
           say: { who: 'haru', en: 'Look! A blue house!', ja: 'みて！ 青い家！' } },
         { say: { who: 'narrator', en: 'Ding-dong!', ja: 'ピンポーン！' }, sfx: 'doorbell',
           interaction: { type: 'speak', target: 'Hello!', accepted: ['hello', 'hallo', 'hullo', 'hello there', 'hi', 'harrow'], prompt: { en: 'Say: "Hello!"', ja: '「ハロー！」と いおう' } } },
-        { visual: ph('wrongHouse-02', 'The first blue house. Simple, clean doorway: one plain wooden front door, one low step, a small porch; no gate, no metal bars, no grates or railings. The door has just opened. The man in pajamas stands in the doorway, one hand on the door, looking confused. Beside him on the porch stands exactly one big fluffy golden dog, its whole body visible with four legs on the ground, mouth open in a loud bark; no other paws or limbs anywhere in the picture. A few steps in front of the porch, on the path, the player holds Momo tightly in both arms and freezes in surprise; Momo\'s fur puffs up, ears flat. Haru stands right beside the player, holding the blue umbrella that belongs to the player over both of them, since the player has both arms full, staring wide-eyed. Clear open space between the dog and the children. Startled but gentle, not scary.', '🚪 👨🐕  ...  🧒😳🐱💢 👦😶', 'rain'),
+        { visual: ph('wrongHouse-02', 'The first blue house. Simple, clean doorway: one plain wooden front door, one low step under a small porch roof; the open gate is behind the viewer and out of frame, and nothing stands in or beside the doorway: no metal bars, grates, railings or boxes. The door has just opened. The man in pajamas stands in the doorway, one hand on the door, looking confused. Beside him on the porch stands exactly one big fluffy golden dog, its whole body visible with four legs on the ground, mouth open in a loud bark; no other paws or limbs anywhere in the picture. A few steps in front of the porch, on the path, the player holds Momo tightly in both arms and freezes in surprise; Momo\'s fur puffs up, ears flat. Haru stands right beside the player, holding the blue umbrella that belongs to the player over both of them, since the player has both arms full, staring wide-eyed. Clear open space between the dog and the children. Startled but gentle, not scary.', '🚪 👨🐕  ...  🧒😳🐱💢 👦😶', 'rain'),
           sfx: 'bark',
           effects: { add: { embarrassmentEvents: 1 } },
           say: { who: 'tanaka', en: 'A cat? We have a dog.', ja: 'ねこ？ うちは 犬だよ。' } },
@@ -366,7 +372,7 @@ export const STORY = {
     reunion: {
       placeJa: 'きむらさんの いえ',
       beats: [
-        { visual: ph('reunion-01', 'The second blue house. Nameplate KIMURA. Player stands at the door with the cat, Haru beside. Player takes a breath.', '💙🏠 🏷️KIMURA  🧒🐱 👦', 'rain'),
+        { visual: ph('reunion-01', 'The second (right-hand) blue house: its wooden front door with the small cat door at the bottom, and its stone gatepost with a blank nameplate (the game shows the name). The player stands on the low step holding Momo in both arms and takes a deep breath before knocking. Haru stands beside the player, holding the blue umbrella that belongs to the player over both of them, since the player has both arms full. Still raining.', '💙🏠 🏷️KIMURA  🧒🐱 👦', 'rain'),
           sfx: 'doorbell',
           say: { who: 'narrator', en: 'Try again!', ja: 'もういちど！' },
           interaction: { type: 'speak', target: 'Hello!', accepted: ['hello', 'hallo', 'hullo', 'hello there', 'hi', 'harrow'], prompt: { en: 'Say: "Hello!"', ja: '「ハロー！」と いおう' } } },
@@ -375,15 +381,15 @@ export const STORY = {
           effects: { set: { foundMomo: true }, add: { competenceMoments: 1 } },
           say: { who: 'kimura', en: 'Momo!', ja: 'モモ！' } },
         // The rain stops here and starts again at bag-01; both changes are said out loud.
-        { visual: ph('reunion-03', 'Outside Mr. Kimura\'s front door. Mr. Kimura hugs Momo, eyes wet; Momo purrs. He bows his head to the two children; the player holds the folded blue umbrella. The rain has just stopped: golden evening light breaks through the clouds and the wet street shines.', '👴🤗🐱💕  🙇 ☀️', 'warm'),
+        { visual: ph('reunion-03', 'Outside Mr. Kimura\'s front door. Mr. Kimura hugs Momo, eyes wet; Momo purrs. He bows his head to the two children; the player holds the folded blue umbrella. The rain has just stopped: golden evening light breaks through the clouds and the wet street shines.', '👴🤗🐱💕  🙇 ☀️', 'warm', 'clearing'),
           say: { who: 'narrator', en: 'The rain stops!', ja: '雨が やんだ！' } },
         { say: { who: 'kimura', en: 'Thank you! Thank you!', ja: 'ありがとう！ ありがとう！' } },
         { when: (s) => s.fedCat, say: { who: 'kimura', en: 'She likes you.', ja: 'きみのことが すきなんだね。' } },
-        { when: warm, visual: ph('reunion-04', 'Haru grins and raises a hand for a high-five; the player high-fives him, both beaming. The rain has stopped; golden evening light on the wet street.', '🧒🙌👦 ✨', 'warm'),
+        { when: warm, visual: ph('reunion-04', 'Haru grins and raises a hand for a high-five; the player high-fives him, both beaming. The rain has stopped; golden evening light on the wet street.', '🧒🙌👦 ✨', 'warm', 'clearing'),
           say: { who: 'haru', en: 'We did it!', ja: 'やったね！' } },
-        { when: cool, visual: ph('reunion-05', 'Haru turns back to the player with a small nod and a small, shy smile: friendly but still reserved. The rain has stopped; golden evening light on the wet street.', '🧒 👦🙂', 'warm'),
+        { when: cool, visual: ph('reunion-05', 'Haru turns back to the player with a small nod and a small, shy smile: friendly but still reserved. The rain has stopped; golden evening light on the wet street.', '🧒 👦🙂', 'warm', 'clearing'),
           say: { who: 'haru', en: '...Good job.', ja: '…よかったね。' } },
-        { visual: ph('reunion-06', 'Mr. Kimura in the foreground, seen from behind over his shoulder, holds up his phone with both hands to take a photo. He is the photographer, not part of the pose. In front of him on the wet street, the player and Haru crouch side by side smiling at the camera, with Momo sitting between them. The rain has stopped; golden evening light.', '👴📸 🧒🐱👦', 'warm'),
+        { visual: ph('reunion-06', 'Mr. Kimura in the foreground, seen from behind over his shoulder, holds up his phone with both hands to take a photo. He is the photographer, not part of the pose. In front of him on the wet street, the player and Haru crouch side by side smiling at the camera, with Momo sitting between them. The rain has stopped; golden evening light.', '👴📸 🧒🐱👦', 'warm', 'clearing'),
           say: { who: 'kimura', en: 'Smile!', ja: 'はい、チーズ！' }, goto: 'bag' },
       ],
     },
@@ -394,69 +400,69 @@ export const STORY = {
     bag: {
       placeJa: 'かえりみち',
       beats: [
-        { visual: ph('bag-01', 'Walking home after returning Momo to Mr. Kimura; the children\'s arms are empty now. The golden break in the clouds is closing and light rain starts again. The player reaches back to open the blue umbrella, and the randoseru lid, left unlatched, swings open: books slide out into a puddle. Haru, beside the player, reacts in surprise.', '🌦️ 🎒↯ 📚📚💧 🧒😱 👦', 'rain'),
+        { visual: ph('bag-01', 'Walking home after returning Momo to Mr. Kimura; the children\'s arms are empty now. The golden break in the clouds is closing and light rain starts again. The player reaches back to open the blue umbrella, and the randoseru lid, left unlatched, swings open: books slide out into a puddle. Haru, beside the player, reacts in surprise.', '🌦️ 🎒↯ 📚📚💧 🧒😱 👦', 'rain', 'light-rain'),
           say: { who: 'narrator', en: 'Drip, drip... Rain again!', ja: 'ポツ、ポツ…また 雨！' } },
         { sfx: 'splash',
           effects: { add: { embarrassmentEvents: 1 } },
           say: { who: 'narrator', en: 'Oh no! Your bag is open!', ja: 'あっ！ ランドセルが あいてる！' } },
-        { when: endingIs('warm'), visual: ph('bag-02', 'Before the player can move, Haru is already kneeling in the puddle, picking up books.', '👦🧎📚 🧒', 'rain'),
+        { when: endingIs('warm'), visual: ph('bag-02', 'Before the player can move, Haru is already kneeling in the puddle, picking up books.', '👦🧎📚 🧒', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'I got it!', ja: 'まかせて！' } },
-        { when: endingIs('quiet'), visual: ph('bag-03', 'One single moment: Haru kneels by the spilled wet books with a quiet, slightly reluctant face and holds one wet book out to the player without quite looking up. The player stands nearby under the blue umbrella. Haru appears only once.', '👦 ... 👦🧎📚', 'rain'),
+        { when: endingIs('quiet'), visual: ph('bag-03', 'One single moment: Haru kneels by the spilled wet books with a quiet, slightly reluctant face and holds one wet book out to the player without quite looking up. The player stands nearby under the blue umbrella. Haru appears only once.', '👦 ... 👦🧎📚', 'rain', 'light-rain'),
           say: { who: 'haru', en: '...Here.', ja: '…はい。' } },
         // Repair: a pause, then Haru chooses to help, and the player thanks him out loud.
-        { when: endingIs('repair'), visual: ph('bag-04', 'Haru stops. He looks at the wet books, then at the player. A short pause.', '👦 ... 📚💧 🧒', 'rain'),
+        { when: endingIs('repair'), visual: ph('bag-04', 'Haru stops. He looks at the wet books, then at the player. A short pause.', '👦 ... 📚💧 🧒', 'rain', 'light-rain'),
           say: { who: 'narrator', en: 'Haru stops.', ja: 'ハルが とまる。' } },
-        { when: endingIs('repair'), visual: ph('bag-05', 'Haru kneels in the puddle beside the player, still a little hesitant, and starts helping pick up wet books. The player kneels too. Only these two children are in the scene.', '👦🧎📚 🧒', 'rain'),
+        { when: endingIs('repair'), visual: ph('bag-05', 'Haru kneels in the puddle beside the player, still a little hesitant, and starts helping pick up wet books. The player kneels too. Only these two children are in the scene.', '👦🧎📚 🧒', 'rain', 'light-rain'),
           say: { who: 'haru', en: "I'll help.", ja: 'てつだうよ。' } },
         { when: endingIs('repair'),
           say: { who: 'narrator', en: 'Haru helps you.', ja: 'ハルが てつだってくれた。' },
           interaction: { type: 'speak', target: 'Thanks!', accepted: ['thanks', 'thank you', 'thank', 'thanks haru', 'sank you', 'tank you', 'sanks', 'tanks'], prompt: { en: 'Say: "Thanks!"', ja: '「サンクス！」と いおう' } } },
-        { when: endingIs('repair'), visual: ph('bag-06', 'Player and Haru pick up the last wet books together. Haru almost smiles.', '🧒📚👦🙂', 'rain'),
+        { when: endingIs('repair'), visual: ph('bag-06', 'Player and Haru pick up the last wet books together. Haru almost smiles.', '🧒📚👦🙂', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'No problem.', ja: 'いいよ。' } },
         { when: (s) => ending(s) !== 'repair',
           say: { who: 'narrator', en: 'Haru helps you.', ja: 'ハルが てつだってくれた。' },
           interaction: { type: 'choice', choices: [
             { verb: 'get', icon: '📚', beats: [
-                { visual: ph('bag-07', 'Player and Haru pick up the last wet books together.', '🧒📚👦', 'rain'),
+                { visual: ph('bag-07', 'Player and Haru pick up the last wet books together.', '🧒📚👦', 'rain', 'light-rain'),
                   say: { who: 'you', en: 'Thanks, Haru.', ja: 'ありがとう、ハル。' } },
               ] },
           ] } },
         // Callback: the younger student returns the favor.
         { when: (s) => s.caughtPapers || s.helpedStudent,
-          visual: ph('bag-08', 'Ken runs up with his mother\'s umbrella, holding the player\'s lost notebook. He looks up at the player with admiration.', '🧒🏻☂️📓 → 🧒', 'rain'),
+          visual: ph('bag-08', 'Ken runs up with his mother\'s umbrella, holding the player\'s lost notebook. He looks up at the player with admiration.', '🧒🏻☂️📓 → 🧒', 'rain', 'light-rain'),
           say: { who: 'ken', en: 'Your notebook! Here!', ja: 'ノート！ はい！' } },
         { when: (s) => s.caughtPapers || s.helpedStudent,
           say: { who: 'ken', en: "You're so cool!", ja: 'かっこいい！' } },
         { when: (s) => s.ignoredStudent,
-          visual: ph('bag-09', 'Ken runs up, holding the player\'s lost notebook. He hesitates, then hands it over.', '🧒🏻📓 → 🧒😳', 'rain'),
+          visual: ph('bag-09', 'Ken runs up, holding the player\'s lost notebook. He hesitates, then hands it over.', '🧒🏻📓 → 🧒😳', 'rain', 'light-rain'),
           say: { who: 'ken', en: 'Um... your notebook.', ja: 'あの…ノート。' } },
         // Warm: Haru walks all the way home; they laugh about the wrong house.
-        { when: endingIs('warm'), visual: ph('bag-10', 'Player and Haru walk on together under one umbrella, all the way to the player\'s street.', '☂️ 🧒👦 → 🏠', 'rain'),
+        { when: endingIs('warm'), visual: ph('bag-10', 'Player and Haru walk on together under one umbrella, all the way to the player\'s street.', '☂️ 🧒👦 → 🏠', 'rain', 'light-rain'),
           say: { who: 'narrator', en: 'Haru walks you home.', ja: 'ハルが いえまで いっしょに あるく。' } },
-        { when: endingIs('warm'), visual: ph('bag-11', 'Near the player\'s house, Haru hunches forward with his hands up like paws and his mouth open in a silly pretend bark, imitating the big dog from the wrong house. The player laughs under the blue umbrella. There is no real dog anywhere; Haru is only pretending.', '👦🐕 "Woof!"  🧒', 'rain'),
+        { when: endingIs('warm'), visual: ph('bag-11', 'Near the player\'s house, Haru hunches forward with his hands up like paws and his mouth open in a silly pretend bark, imitating the big dog from the wrong house. The player laughs under the blue umbrella. There is no real dog anywhere; Haru is only pretending.', '👦🐕 "Woof!"  🧒', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'The dog! Woof, woof!', ja: 'あの犬！ ワン、ワン！' } },
         { when: endingIs('warm'),
           say: { who: 'you', en: 'That was embarrassing!', ja: 'はずかしかった！' } },
-        { when: endingIs('warm'), visual: ph('bag-12', 'Haru and player laugh under the umbrella near player\'s house.', '☂️ 🧒😆👦😆 🏠', 'rain'),
+        { when: endingIs('warm'), visual: ph('bag-12', 'Haru and player laugh under the umbrella near player\'s house.', '☂️ 🧒😆👦😆 🏠', 'rain', 'light-rain'),
           say: { who: 'narrator', en: 'You both laugh.', ja: 'ふたりで わらう。' } },
-        { when: endingIs('warm'), visual: ph('bag-13', 'At the player\'s gate, Haru waves, grinning.', '🏠 🧒👋 👦👋 😄', 'rain'),
+        { when: endingIs('warm'), visual: ph('bag-13', 'At the player\'s gate, Haru waves, grinning.', '🏠 🧒👋 👦👋 😄', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'See you Monday!', ja: 'また月曜日ね！' }, goto: 'home' },
         // Repair: Haru walks part of the way; a funny memory, then a good one.
-        { when: endingIs('repair'), visual: ph('bag-14', 'Player and Haru walk side by side to the corner of the player\'s street.', '🧒 👦 → 🏘️', 'rain'),
+        { when: endingIs('repair'), visual: ph('bag-14', 'Player and Haru walk side by side to the corner of the player\'s street.', '🧒 👦 → 🏘️', 'rain', 'light-rain'),
           say: { who: 'narrator', en: 'Haru walks with you.', ja: 'ハルが いっしょに あるく。' } },
-        { when: (s) => endingIs('repair')(s) && s.ranFromHaru, visual: ph('bag-15', 'Memory bubble: the player\'s umbrella flipping inside out in the wind.', '💭 🌂↯ 🧒💦', 'rain'),
+        { when: (s) => endingIs('repair')(s) && s.ranFromHaru, visual: ph('bag-15', 'Memory bubble: the player\'s umbrella flipping inside out in the wind.', '💭 🌂↯ 🧒💦', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'Your umbrella! Whoosh!', ja: 'きみの かさ！ ビュー！' } },
-        { when: (s) => endingIs('repair')(s) && !s.ranFromHaru, visual: ph('bag-16', 'Memory bubble: a wet worksheet stuck flat on the player\'s face.', '💭 📄😵', 'rain'),
+        { when: (s) => endingIs('repair')(s) && !s.ranFromHaru, visual: ph('bag-16', 'Memory bubble: a wet worksheet stuck flat on the player\'s face.', '💭 📄😵', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'The paper on your face!', ja: 'かおに プリント！' } },
         { when: endingIs('repair'), say: { who: 'you', en: 'Ha ha... Yes.', ja: 'あはは…うん。' } },
-        { when: endingIs('repair'), visual: ph('bag-17', 'Memory bubble: Mr. Kimura hugging Momo, the player and Haru beside him.', '💭 👴🐱💕 🧒👦', 'rain'),
+        { when: endingIs('repair'), visual: ph('bag-17', 'Memory bubble: Mr. Kimura hugging Momo, the player and Haru beside him.', '💭 👴🐱💕 🧒👦', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'But Momo! You were great.', ja: 'でも モモ！ すごかったよ。' } },
-        { when: endingIs('repair'), visual: ph('bag-18', 'At the corner, Haru waves. It is a real smile now.', '🧒👋 👦😊', 'rain'),
+        { when: endingIs('repair'), visual: ph('bag-18', 'At the corner, Haru waves. It is a real smile now.', '🧒👋 👦😊', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'See you Monday.', ja: 'また月曜日。' }, goto: 'home' },
         // Quiet: Haru goes his own way; the player walks the last street alone.
-        { when: endingIs('quiet'), visual: ph('bag-19', 'At a corner, Haru stops and points down another street.', '🧒 ... 👦👉🏘️', 'rain'),
+        { when: endingIs('quiet'), visual: ph('bag-19', 'At a corner, Haru stops and points down another street.', '🧒 ... 👦👉🏘️', 'rain', 'light-rain'),
           say: { who: 'haru', en: 'See you.', ja: 'じゃあね。' } },
-        { when: endingIs('quiet'), visual: ph('bag-20', 'Haru goes another way. The player walks the last street alone. The rain is lighter.', '🧒🚶 🌦️ ... 👦🚶', 'rain'),
+        { when: endingIs('quiet'), visual: ph('bag-20', 'Haru goes another way. The player walks the last street alone. The rain is lighter.', '🧒🚶 🌦️ ... 👦🚶', 'rain', 'light-rain'),
           say: { who: 'narrator', en: 'You walk home alone.', ja: 'ひとりで かえる。' }, goto: 'home' },
       ],
     },
@@ -465,33 +471,33 @@ export const STORY = {
     home: {
       placeJa: 'いえ',
       beats: [
-        { when: (s) => s.lateLevel >= 2, visual: ph('home-01', 'Front door. Mom stands with arms crossed, then sees the player soaking wet.', '🚪 👩😠 🧒💦', 'rain'),
+        { when: (s) => s.lateLevel >= 2, visual: ph('home-01', 'Front door. Mom stands with arms crossed, then sees the player soaking wet.', '🚪 👩😠 🧒💦', 'rain', 'light-rain'),
           sfx: 'door',
           say: { who: 'mom', en: 'You are very late!', ja: 'すごく おそいじゃない！' } },
-        { when: (s) => s.lateLevel < 2, visual: ph('home-01', 'Front door. Mom stands with arms crossed, then sees the player soaking wet.', '🚪 👩😠 🧒💦', 'rain'),
+        { when: (s) => s.lateLevel < 2, visual: ph('home-01', 'Front door. Mom stands with arms crossed, then sees the player soaking wet.', '🚪 👩😠 🧒💦', 'rain', 'light-rain'),
           sfx: 'door',
           say: { who: 'mom', en: "You're late!", ja: 'おそかったね！' } },
-        { visual: ph('home-02', 'Inside the front entrance (genkan). Mom\'s face softens from worry; she wraps a big soft towel around the player\'s wet head and shoulders. The player is still in the soaked light-green jacket and has just set the randoseru down on the step; the wet blue umbrella stands in an umbrella stand by the door. Through the open door behind, light rain in the evening street.', '👩😮🧺 🧒💦', 'warm'),
+        { visual: ph('home-02', 'Inside the front entrance (genkan). Mom\'s face softens from worry; she wraps a big soft towel around the player\'s wet head and shoulders. The player is still in the soaked light-green jacket and has just set the randoseru down on the step; the wet blue umbrella stands in an umbrella stand by the door. Through the open door behind, light rain in the evening street.', '👩😮🧺 🧒💦', 'warm', 'indoor-rain'),
           say: { who: 'mom', en: "Oh! You're so wet!", ja: 'あら！ びしょぬれ！' } },
         { say: { who: 'mom', en: 'What first?', ja: 'まず なにする？' },
           interaction: { type: 'choice', all: true, choices: [
             { verb: 'wash', icon: '🧼', beats: [
-                { visual: ph('home-03', 'Close-up at a bathroom sink: the player\'s cold hands under warm running water, steam rising, sleeves pushed up past the wrists. Only the hands, forearms and sink are in frame; no jacket, school bag or umbrella.', '🧼🙌♨️', 'warm'), say: { who: 'narrator', en: 'Warm water. Ahh.', ja: 'あったかい おゆ。ふぅ。' } },
+                { visual: ph('home-03', 'Close-up at a bathroom sink: the player\'s cold hands under warm running water, steam rising, sleeves pushed up past the wrists. Only the hands, forearms and sink are in frame; no jacket, school bag or umbrella.', '🧼🙌♨️', 'warm', 'indoor-rain'), say: { who: 'narrator', en: 'Warm water. Ahh.', ja: 'あったかい おゆ。ふぅ。' } },
               ] },
             { verb: 'wear', icon: '👕', beats: [
-                { visual: ph('home-04', 'In the warm living room, the player stands in dry, soft home clothes, hair messy from the towel, smiling and relaxed. The wet light-green jacket hangs on a hook in the background.', '🧒👕✨', 'warm'), say: { who: 'narrator', en: 'Dry clothes. Nice.', ja: 'かわいた ふく。きもちいい。' } },
+                { visual: ph('home-04', 'In the warm living room, the player stands in dry, soft home clothes, hair messy from the towel, smiling and relaxed. The wet light-green jacket hangs on a hook in the background.', '🧒👕✨', 'warm', 'indoor-rain'), say: { who: 'narrator', en: 'Dry clothes. Nice.', ja: 'かわいた ふく。きもちいい。' } },
               ] },
             { verb: 'drink', icon: '☕', beats: [
-                { visual: ph('home-05', 'The player sits at the kitchen table wrapped in a big soft beige blanket around the shoulders, holding a mug of hot milk with both hands; steam rises. Light rain on the window behind.', '🧒☕♨️', 'warm'), say: { who: 'mom', en: 'Hot milk. Drink.', ja: 'ホットミルクよ。のんで。' }, sfx: 'mug' },
+                { visual: ph('home-05', 'The player sits at the kitchen table wrapped in a big soft beige blanket around the shoulders, holding a mug of hot milk with both hands; steam rises. Light rain on the window behind.', '🧒☕♨️', 'warm', 'indoor-rain'), say: { who: 'mom', en: 'Hot milk. Drink.', ja: 'ホットミルクよ。のんで。' }, sfx: 'mug' },
               ] },
           ] } },
-        { when: endingIs('quiet'), visual: ph('home-06', 'The player sits alone at a table by the window with a warm drink, quiet and thoughtful, a little lonely, watching light rain tap the glass.', '🧒☕  🌧️', 'warm'),
+        { when: endingIs('quiet'), visual: ph('home-06', 'The player sits alone at a table by the window with a warm drink, quiet and thoughtful, a little lonely, watching light rain tap the glass.', '🧒☕  🌧️', 'warm', 'indoor-rain'),
           say: { who: 'narrator', en: 'Tap, tap. The rain is quiet.', ja: 'ポツ、ポツ。しずかな 雨。' } },
         { say: { who: 'kimura', en: 'Thank you!', ja: 'ありがとう！', message: true, photo: 'photo-momo' }, sfx: 'phone' },
-        { visual: ph('home-07', 'In the warm living room, Mom\'s phone buzzes. She sits holding it, looking at the screen and smiling in surprise. The phone faces Mom, so the viewer sees only its back and a soft glow; nothing on the screen is visible (the message and photo are added by the game). The player sits beside her in dry home clothes, looking on shyly. Only Mom and the player are in the room; no pets, no visitors. Light rain on the window.', '📱 🖼️(🧒🐱👦) "Thank you!"', 'warm'),
+        { visual: ph('home-07', 'In the warm living room, Mom\'s phone buzzes. She sits holding it, looking at the screen and smiling in surprise. The phone faces Mom, so the viewer sees only its back and a soft glow; nothing on the screen is visible (the message and photo are added by the game). The player sits beside her in dry home clothes, looking on shyly. Only Mom and the player are in the room; no pets, no visitors. Light rain on the window.', '📱 🖼️(🧒🐱👦) "Thank you!"', 'warm', 'indoor-rain'),
           say: { who: 'mom', en: 'A photo? Who is Momo?', ja: '写真？ モモって だれ？' } },
         { when: (s) => s.helpedMrsSato, say: { who: 'mom', en: 'Mrs. Sato called, too!', ja: 'さとうさんからも 電話が あったよ！' } },
-        { visual: ph('home-08', 'In the warm living room, Mom smiles and gently rubs the player\'s head; the player, in dry home clothes, smiles up at her. Outside the window, the rain is soft now: a light drizzle on the glass.', '👩🤲🧒  🌦️', 'warm'),
+        { visual: ph('home-08', 'In the warm living room, Mom smiles and gently rubs the player\'s head; the player, in dry home clothes, smiles up at her. Outside the window, the rain is soft now: a light drizzle on the glass.', '👩🤲🧒  🌦️', 'warm', 'indoor-rain'),
           say: { who: 'mom', en: "I'm proud of you.", ja: 'えらかったね。' } },
         // Reflection: the answer only changes Mom's reply, never the ending.
         { say: { who: 'mom', en: 'How was your day?', ja: 'きょうは どうだった？' },

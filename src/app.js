@@ -13,8 +13,10 @@ const root = document.querySelector('#app');
 const params = new URLSearchParams(location.search);
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cameraForced = params.get('cam') === '1';
+// Mic and camera default ON; ?cam=0 starts with the camera off.
 let micOn = true;
-let camOn = cameraForced;
+let camOn = params.get('cam') !== '0';
+const PERMISSION_WAIT_MS = 8000;
 let soundOn = isSoundEnabled();
 let settingsOpen = false;
 let starting = false;
@@ -106,10 +108,50 @@ function bindSettings() {
   };
 }
 
+const recognitionAvailable = () => Boolean(globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition);
+
+// Ask for mic/camera once, on はじめる, so no permission prompt interrupts the
+// story later. Denial or a missing device quietly switches that input off (tap
+// fallbacks remain). An unanswered prompt never blocks: after a short wait the
+// story starts anyway, and a later answer still applies.
+async function requestPermissions() {
+  const wantMic = micOn && recognitionAvailable();
+  const wantCam = camOn;
+  if (!wantMic && !wantCam) return;
+  if (!navigator.mediaDevices?.getUserMedia) {
+    if (!cameraForced) camOn = false;
+    return;
+  }
+  const ask = (constraints) => navigator.mediaDevices.getUserMedia(constraints)
+    .then((stream) => { stream.getTracks().forEach((track) => track.stop()); return true; });
+  const attempt = async () => {
+    try {
+      await ask({ audio: wantMic, video: wantCam });
+      return;
+    } catch (error) {
+      if (['NotAllowedError', 'SecurityError'].includes(error?.name)) {
+        if (wantMic) micOn = false;
+        if (wantCam) camOn = false;
+        return;
+      }
+    }
+    // A missing device fails the joint request; try each input on its own.
+    if (wantMic) micOn = await ask({ audio: true }).catch(() => false);
+    if (wantCam) camOn = await ask({ video: true }).catch(() => false);
+  };
+  await Promise.race([
+    attempt().catch(() => {}),
+    new Promise((resolve) => { setTimeout(resolve, PERMISSION_WAIT_MS); }),
+  ]);
+}
+
 async function begin() {
   if (starting || settingsOpen) return;
   starting = true;
   await unlockAudio();
+  const startButton = document.querySelector('#start');
+  if (startButton) startButton.disabled = true;
+  await requestPermissions();
   document.querySelector('.intro-screen')?.classList.add('leaving');
   await new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : 400));
   runner = createRunner(STORY, { initialState: parseSet(), scene: params.get('scene') || undefined });
@@ -170,9 +212,16 @@ function renderBeat(playBeatSound = false) {
   const visual = view.visual || { type: 'placeholder', id: '', stage: '', description: '', tone: 'cloudy' };
   const tone = visual.tone || 'cloudy';
   document.documentElement.className = `tone-${tone} game-mode`;
-  document.querySelector('#place').textContent = STORY.scenes[view.sceneId].placeJa || '';
+  const scene = STORY.scenes[view.sceneId];
+  const place = document.querySelector('#place');
+  place.textContent = scene.placeJa || '';
+  if (scene.placeEn) {
+    const english = document.createElement('small');
+    english.textContent = scene.placeEn;
+    place.append(english);
+  }
   updateVisual(visual);
-  setAmbience(tone);
+  setAmbience(visual.weather || 'cloudy');
   if (playBeatSound && view.sfx) playSfx(view.sfx);
   renderStoryOverlay(view, playBeatSound);
 }
@@ -213,7 +262,7 @@ function toggleHint() {
 function renderRecap(view) {
   cleanupInteraction();
   document.documentElement.className = 'tone-warm recap-mode';
-  setAmbience('warm');
+  setAmbience('indoor-rain');
   root.innerHTML = `
     <section class="recap-screen"><img src="art/scenes/home-08.webp" alt=""><div class="recap-dim"></div>
       <article class="recap-card card-enter"><h1>Rainy Walk Home</h1>

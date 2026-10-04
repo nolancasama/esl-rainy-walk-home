@@ -11,15 +11,60 @@ const STYLE = 'Warm children\'s picture-book illustration, soft watercolor and g
   + 'clean readable shapes, quiet Japanese residential town, gentle expressions, 16:9 wide frame, '
   + 'no text, no letters, no watermark.';
 
+// Keyed by `visual.weather` (what is happening outside), not by emotional tone.
 const LIGHT = {
-  cloudy: 'Overcast late-afternoon light, gray-blue sky.',
+  cloudy: 'Dry ground, no rain falling yet. Overcast late-afternoon light, dark gray clouds gathering.',
   rain: 'Rain, wet reflective pavement, cool blue-gray palette, overcast gray sky.',
   storm: 'Strong wind and heavy rain, dramatic diagonal rain streaks, darker slate palette.',
-  // `warm` is the story's one weather break (reunion, said aloud) and the cozy home after it.
-  warm: 'Warm golden evening light, cozy amber palette. Outdoors the rain has just stopped: '
-    + 'golden sunset light breaking through the clouds, wet shining ground. Indoors: warm lamplight, '
-    + 'with golden dusk and a light drizzle on the windows.',
+  // The story's one weather break (reunion), said aloud at reunion-03 and bag-01.
+  clearing: 'The rain has just stopped: no rain falling, warm golden evening light breaking through '
+    + 'the clouds, wet shining ground and puddles, cozy amber palette.',
+  'light-rain': 'Light rain falling again after a short break, wet reflective pavement, soft blue-gray '
+    + 'evening palette.',
+  'indoor-rain': 'Indoors: warm lamplight, cozy amber palette; through the windows, golden dusk with '
+    + 'a light drizzle on the glass.',
 };
+
+// Recurring places are a film set: one master layout, reused by every shot there.
+// Each prompt repeats the layout in words for generators without image references.
+const LOCATIONS = {
+  'cat-search-area': {
+    reference: 'art/reference/loc-cat-search.webp',
+    layout: 'A quiet Japanese residential side street seen from the sidewalk at child eye level, '
+      + 'the street receding toward the left-center. On the right side of the sidewalk, from front to '
+      + 'back: a large rounded blue hydrangea bush with big green leaves at the front right; just behind '
+      + 'it a red drink vending machine facing the street; directly behind and right of the vending '
+      + 'machine, a small roofed bicycle shelter (thin dark metal posts, translucent corrugated roof) '
+      + 'with four ordinary city bicycles parked side by side in a rack, front baskets toward the street; '
+      + 'a gray concrete-block wall behind the shelter. On the left side: a low stone wall and two-storey '
+      + 'houses with lit windows. Wet gray paving, one round manhole cover mid-sidewalk, utility poles.',
+    ids: ['listen-01', 'listen-02', 'listen-04', 'listen-05', 'come-01', 'come-02', 'come-03',
+      'come-04', 'come-05', 'come-06', 'come-07', 'softly-01', 'softly-02'],
+  },
+  'blue-houses': {
+    reference: 'art/scenes/wrongHouse-04.webp',
+    layout: 'Two matching pale-blue two-storey houses side by side, seen from the street: the LEFT '
+      + 'house is Mr. Tanaka\'s, the RIGHT house is Mr. Kimura\'s. Both have dark gray tiled roofs, a '
+      + 'small porch roof over a wooden front door with a warm wall lamp beside it, and large lit '
+      + 'ground-floor windows. In front of each: a low gray block wall with blue hydrangeas, a square '
+      + 'stone gatepost with a blank pale nameplate, a short straight stone path to one low entry step. '
+      + 'The left house has a black slatted metal gate standing open; the right house\'s wooden door '
+      + 'has a small cat door at the bottom. Nothing else on either house suggests a cat. A wet '
+      + 'sidewalk runs along the front of both houses.',
+    ids: ['wrongHouse-01', 'wrongHouse-02', 'wrongHouse-04', 'wrongHouse-05', 'wrongHouse-06',
+      'reunion-01', 'reunion-02'],
+  },
+};
+const LOCATION_OF = Object.fromEntries(Object.entries(LOCATIONS)
+  .flatMap(([name, place]) => place.ids.map((id) => [id, name])));
+
+function locationText(name) {
+  const { reference, layout } = LOCATIONS[name];
+  return `LOCATION REFERENCE: ${name} (\`${reference}\`). Use the established ${name} location `
+    + 'reference. Preserve the exact same environment, camera angle, horizon, architecture, object '
+    + 'placement and weather context; closer shots show part of the same set. Change only the '
+    + `characters, their poses and the action. Fixed layout: ${layout}`;
+}
 
 // Fixed character sheet so every prompt draws the same people. Entries with a
 // null pattern are outfit variants, chosen only through OVERRIDES.
@@ -41,6 +86,9 @@ const CAST = [
   ['sato', /Mrs\. Sato(?!'s)|elderly neighbor/,
     'Mrs. Sato: a kind elderly woman, short gray curly hair, lavender cardigan, purple umbrella, '
     + 'two cloth grocery bags'],
+  ['satoEscorted', null,
+    'Mrs. Sato: a kind elderly woman, short gray curly hair, lavender cardigan, holding only her own '
+    + 'purple umbrella; the children carry her two cloth grocery bags'],
   ['kimura', /Mr\. Kimura|elderly man/,
     'Mr. Kimura: a gentle elderly man, white hair, round glasses, brown cardigan, wooden cane'],
   ['tanaka', /man in pajamas|The man|the man\b/,
@@ -79,6 +127,7 @@ const HOME = ['playerHome', '-player'];
 const OVERRIDES = {
   'wrongHouse-01': ['haru'],
   'tag-03': ['player', 'haru'],
+  'sato-04': ['satoEscorted', '-sato'],
   'reunion-02': ['haru'],
   'reunion-05': ['-kimura'],
   'bag-01': ['haru', '-momo', '-kimura'],
@@ -100,8 +149,9 @@ function prompt({ id, visual }) {
     .map(([key]) => key);
   const who = keys.map((key) => CAST.find(([k]) => k === key)[2]);
   const parts = [STYLE, `Scene: ${d}`];
+  if (LOCATION_OF[id]) parts.push(locationText(LOCATION_OF[id]));
   if (who.length) parts.push(`Characters: ${who.join('; ')}.`);
-  parts.push(LIGHT[visual.tone] || LIGHT.rain);
+  parts.push(LIGHT[visual.weather] || LIGHT.rain);
   // Generators add stray cats, dogs and children; in a lost-cat story those read as plot.
   const animals = `${keys.includes('momo') ? 'Momo is the only cat' : 'no cats'}, `
     + `${keys.includes('tanaka') ? 'the golden dog is the only dog' : 'no dogs'}`;
@@ -141,6 +191,19 @@ out.push('## Player home outfit (generate second)', '');
 out.push('Used in home scenes after the player changes into dry clothes. Same child, same face and hair.', '');
 out.push('```', `${STYLE.replace('16:9 wide frame, ', '')} Character sheet on a plain light background, full body, `
   + `front view and side view of one child: ${CAST.find(([k]) => k === 'playerHome')[2]}.`, '```', '');
+
+out.push('## Location references (generate before their scenes)', '');
+out.push('Recurring places are a film set. Generate the empty master plate once, approve it, then pass it as');
+out.push('the reference image for every scene listed. Each scene prompt also restates the layout in words.', '');
+for (const [name, place] of Object.entries(LOCATIONS)) {
+  out.push(`### ${name} → \`${place.reference}\``, '', `Scenes: ${place.ids.join(', ')}.`, '');
+  if (place.reference.startsWith('art/reference/')) {
+    out.push('```', `${STYLE} Empty establishing plate, no people and no animals. ${place.layout} `
+      + `${LIGHT.rain}`, '```', '');
+  } else {
+    out.push('Already exists (no people in it); use that image as the reference.', '');
+  }
+}
 
 out.push('## Speaker portraits (8)', '');
 out.push('Small round icons shown next to each line. Same style, head-and-shoulders, plain soft background.', '');

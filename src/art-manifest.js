@@ -17,7 +17,7 @@ export const SCENE_ART = {
   "papers-08": "art/scenes/papers-08.webp",
   "sato-01": "art/scenes/sato-01.webp",
   "sato-02": "art/scenes/sato-02.webp",
-  "sato-03": "art/scenes/sato-03.webp",
+  "sato-03": "art/scenes/sato-05.webp",
   "sato-04": "art/scenes/sato-04.webp",
   "sato-05": "art/scenes/sato-05.webp",
   "sato-06": "art/scenes/sato-06.webp",

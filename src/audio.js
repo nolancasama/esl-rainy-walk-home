@@ -13,7 +13,8 @@ const PROCEDURAL_SFX = new Set([
   'doorbell',
   'mug',
 ]);
-const AMBIENCE_TONES = new Set(['title', 'cloudy', 'rain', 'storm', 'warm']);
+// Ambience follows the scene's weather, never its emotional tone.
+const AMBIENCE_TONES = new Set(['title', 'cloudy', 'rain', 'storm', 'clearing', 'light-rain', 'indoor-rain']);
 
 let soundEnabled = readSoundSetting();
 let unlocked = false;
@@ -126,7 +127,19 @@ function createAmbience(ctx, tone, now) {
       type: 'bandpass', frequency: 330, q: 0.45, volume: 0.11,
       modulation: { rate: 0.09, depth: 0.045 },
     }));
-  } else if (tone === 'warm') {
+  } else if (tone === 'light-rain') {
+    sources.push(...noiseLayer(ctx, gain, {
+      type: 'highpass', frequency: 1400, volume: 0.065,
+      modulation: { rate: 0.15, depth: 0.012 },
+    }));
+  } else if (tone === 'indoor-rain') {
+    // Rain heard through a window: muffled and quiet.
+    sources.push(...noiseLayer(ctx, gain, {
+      type: 'lowpass', frequency: 900, volume: 0.05,
+      modulation: { rate: 0.12, depth: 0.012 },
+    }));
+  } else if (tone === 'clearing') {
+    // The rain has just stopped: only a soft, low wash.
     sources.push(...noiseLayer(ctx, gain, {
       type: 'lowpass', frequency: 620, volume: 0.045,
       modulation: { rate: 0.13, depth: 0.01 },

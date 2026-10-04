@@ -5,7 +5,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { SCENE_ART } from '../src/art-manifest.js';
 import { createRunner } from '../src/engine.js';
-import { STORY, ending } from '../src/story.js';
+import { STORY, WEATHERS, ending } from '../src/story.js';
 import { VOCAB_BY_ID } from '../src/vocab.js';
 
 function walk(beats, visit) {
@@ -27,8 +27,10 @@ test('every placeholder has one stable id and resolves to existing art', () => {
 
   assert.equal(descriptions.size, 79);
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const aliases = JSON.parse(fs.readFileSync(path.join(root, 'art/aliases.json'), 'utf8'));
   for (const id of descriptions.keys()) {
-    assert.ok(fs.existsSync(path.join(root, `art/scenes/${id}.webp`)), `missing source art: ${id}`);
+    const fileId = aliases[id] || id;
+    assert.ok(fs.existsSync(path.join(root, `art/scenes/${fileId}.webp`)), `missing source art: ${id}`);
     assert.ok(SCENE_ART[id], `missing manifest entry: ${id}`);
     assert.ok(fs.existsSync(path.join(root, SCENE_ART[id])), `missing resolved art: ${id}`);
   }
@@ -170,4 +172,29 @@ test('DFS over every reachable choice sequence reaches recap within cap', () => 
   }
   assert.ok(completed > 1);
   assert.deepEqual([...endings].sort(), ['quiet', 'repair', 'warm']);
+});
+
+test('weather is separate from tone and changes only where the story says so', () => {
+  const weather = new Map();
+  walk(Object.values(STORY.scenes).flatMap((scene) => scene.beats), (beat) => {
+    if (beat.visual?.type !== 'placeholder') return;
+    assert.ok(WEATHERS.includes(beat.visual.weather), `${beat.visual.id}: ${beat.visual.weather}`);
+    weather.set(beat.visual.id, beat.visual.weather);
+  });
+  // A warm-feeling scene can still be rainy: the home scenes are warm indoors with rain outside.
+  assert.equal(weather.get('home-05'), 'indoor-rain');
+  // The rain stops at the reunion ("The rain stops!") and returns at bag-01 ("Rain again!").
+  assert.equal(weather.get('reunion-02'), 'rain');
+  for (const id of ['reunion-03', 'reunion-04', 'reunion-05', 'reunion-06']) assert.equal(weather.get(id), 'clearing', id);
+  assert.equal(weather.get('bag-01'), 'light-rain');
+  assert.equal(STORY.photos['photo-momo'].weather, 'clearing');
+  const lines = [];
+  walk([...STORY.scenes.reunion.beats, ...STORY.scenes.bag.beats], (beat) => { if (beat.say?.en) lines.push(beat.say.en); });
+  assert.ok(lines.includes('The rain stops!'));
+  assert.ok(lines.some((line) => /Rain again/.test(line)));
+});
+
+test('the opening school has its name', () => {
+  assert.equal(STORY.scenes.school.placeJa, '松原小学校');
+  assert.equal(STORY.scenes.school.placeEn, 'Matsubara Elementary School');
 });

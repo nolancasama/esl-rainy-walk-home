@@ -39,6 +39,7 @@ button[hidden],[hidden] { display:none!important; }
 .visual-description { max-width:760px; padding:10px 14px; border:1px dashed rgba(39,55,67,.65); border-radius:10px; background:rgba(255,250,240,.78); font-size:.95rem; }
 .bottom-scrim { position:absolute; inset:38% 0 0; pointer-events:none; background:linear-gradient(transparent,rgba(18,24,29,.18) 35%,rgba(18,24,29,.7)); }
 .place { position:absolute; z-index:2; top:16px; left:18px; margin:0; padding:6px 12px; border-radius:999px; color:#fff; background:rgba(38,48,57,.52); font-size:.88rem; backdrop-filter:blur(5px); }
+.place small { margin-left:.6em; font-size:.75rem; opacity:.85; }
 
 .story-overlay { position:absolute; z-index:3; left:50%; bottom:18px; transform:translateX(-50%); width:min(920px,92vw); display:grid; gap:10px; justify-items:center; }
 .dialogue-card,.message-card,.recap-card { position:relative; width:100%; padding:16px 82px 16px 22px; border-radius:14px; background:var(--paper); box-shadow:var(--shadow); color:#2d2a26; }
